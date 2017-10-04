@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Version.fs" />
+    <Compile Include="../Server/Shared/Domain.fs" />
+    <Compile Include="Messages.fs" />
+    <Compile Include="Style.fs" />
+    <Compile Include="Utils.fs" />
+    <Compile Include="pages/Menu.fs" />
+    <Compile Include="App.fs" />
+  </ItemGroup>
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

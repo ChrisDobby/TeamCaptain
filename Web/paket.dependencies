@@ -1,0 +1,38 @@
+source https://nuget.org/api/v2
+storage:none
+
+nuget FSharp.Core redirects: force
+nuget Fable.JsonConverter
+nuget Suave
+nuget Microsoft.Extensions.Logging.Console
+nuget System.Net.NetworkInformation
+nuget Newtonsoft.Json
+nuget jose-jwt
+
+nuget Fable.Core
+nuget Fable.Elmish.Browser
+nuget Fable.Elmish.Debugger
+nuget Fable.Elmish.React
+nuget Fable.Elmish.HMR
+
+clitool dotnet-fable
+clitool Microsoft.DotNet.Watcher.Tools
+
+group ServerTests
+  source https://nuget.org/api/v2
+  storage:none
+  clitool Microsoft.DotNet.Watcher.Tools
+  nuget FSharp.Core redirects: force
+  nuget Expecto
+
+group UITests
+  source https://nuget.org/api/v2
+  framework >= net461
+  nuget FSharp.Core redirects: force
+  nuget Canopy
+  nuget Expecto
+  nuget phantomjs
+
+group Build
+  source https://nuget.org/api/v2
+  nuget FAKE
