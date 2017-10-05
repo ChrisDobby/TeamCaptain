@@ -24,7 +24,6 @@ type SubModel =
 
 type Model =
   { Page : Page
-    Menu : Menu.Model
     SubModel : SubModel }
 
 
@@ -42,17 +41,15 @@ let urlUpdate (result:Page option) model =
     | Some (Home as page) ->
         { model with
             Page = page
-            Menu = { model.Menu with query = "" } }, Cmd.none
+        }, Cmd.none
 
 let init result =
-    let menu,menuCmd = Menu.init()
     let m =
         { Page = Home
-          Menu = menu
           SubModel = NoSubModel }
 
     let m,cmd = urlUpdate result m
-    m,Cmd.batch[cmd; menuCmd]
+    m,Cmd.batch[cmd]
 
 let update msg model =
     model, []
@@ -68,13 +65,12 @@ open Client.Style
 let viewPage model dispatch =
     match model.Page with
     | Page.Home ->
-        [ words 20 ("version " + ReleaseNotes.Version) ]
+        [ words 20 ("Version " + ReleaseNotes.Version) ]
 
 /// Constructs the view for the application given the model.
 let view model dispatch =
   div []
-    [ lazyView2 Menu.view model.Menu dispatch
-      hr []
+    [
       div [ centerStyle "column" ] (viewPage model dispatch)
     ]
 
