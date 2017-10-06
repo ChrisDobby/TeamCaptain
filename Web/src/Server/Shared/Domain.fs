@@ -6,6 +6,11 @@ open System
 // Json web token type.
 type JWT = string
 
+type Registration = 
+    {
+        TeamName : string
+    }
+
 type MatchLocation = 
     | Home
     | Away
@@ -22,4 +27,9 @@ type Fixture =
     }
 
 // Model validation functions.  Write your validation functions once, for server and client!
-//module Validation =
+module Validation =
+    let verifyRegistrationTeam teamName =
+        if String.IsNullOrWhiteSpace(teamName) then Some("No team name specified") else
+        None    
+    let verifyRegistration registration =
+        verifyRegistrationTeam registration.TeamName = None

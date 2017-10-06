@@ -29,7 +29,10 @@ let start clientPath port =
 
                 path "/api/teams/" >=> Teams.getAllTeams ]
 
-            POST >=> choose [ ]
+            POST >=> choose [ 
+
+                path "/api/register/" >=> Teams.registerWithTeam
+            ]
 
             NOT_FOUND "Page not found."
 
