@@ -1,5 +1,5 @@
 /// Functions for managing the Suave web server.
-module ServerCode.WebServer
+module Server.WebServer
 
 open System.IO
 open Suave
@@ -17,7 +17,7 @@ let start clientPath port =
     let logger = Logging.Targets.create Logging.Info [| "Suave" |]
     let serverConfig =
         { defaultConfig with
-            logger = Targets.create LogLevel.Debug [|"ServerCode"; "Server" |]
+            logger = Targets.create LogLevel.Debug [|"Server"; "Server" |]
             homeFolder = Some clientPath
             bindings = [ HttpBinding.create HTTP (IPAddress.Parse "0.0.0.0") port] }
 
@@ -25,7 +25,9 @@ let start clientPath port =
         choose [
             GET >=> choose [
                 path "/" >=> Files.browseFileHome "index.html"
-                pathRegex @"/(public|js|css|Images)/(.*)\.(css|png|gif|jpg|js|map)" >=> Files.browseHome ]
+                pathRegex @"/(public|js|css|Images)/(.*)\.(css|png|gif|jpg|js|map)" >=> Files.browseHome
+
+                path "/api/teams/" >=> Teams.getAllTeams ]
 
             POST >=> choose [ ]
 

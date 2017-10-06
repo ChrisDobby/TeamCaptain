@@ -1,5 +1,5 @@
 /// Module of server domain types. 
-module ServerCode.ServerTypes
+module Server.ServerTypes
 
 open System
 

@@ -1,4 +1,4 @@
-namespace ServerCode.Domain
+namespace Server.Domain
 
 open System
 

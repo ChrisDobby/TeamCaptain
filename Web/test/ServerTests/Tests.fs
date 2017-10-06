@@ -1,7 +1,7 @@
 module ServerTests.Tests
 
 open Expecto
-open ServerCode
+open Server
 
 let tests = 
     testList "tests" [ ]

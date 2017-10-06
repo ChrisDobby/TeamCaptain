@@ -2,7 +2,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Shared/Domain.fs" />
@@ -10,8 +9,11 @@
     <Compile Include="JsonWebToken.fs" />
     <Compile Include="FableJson.fs" />
     <Compile Include="Auth.fs" />
+    <Compile Include="Teams.fs" />
     <Compile Include="WebServer.fs" />
     <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.DotNet.Watcher.Tools" Version="1.0.0" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

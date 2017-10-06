@@ -1,7 +1,7 @@
 module Client.Messages
 
 open System
-open ServerCode.Domain
+open Server.Domain
 
 /// The user data sent with every message.
 type UserData = 
