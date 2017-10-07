@@ -9,6 +9,7 @@ type JWT = string
 type Registration = 
     {
         TeamName : string
+        UserName : string
     }
 
 type MatchLocation = 
@@ -18,6 +19,8 @@ type MatchLocation =
 type Team = 
     {
         Name : string
+        Captains : string[]
+        Players: string[]
     }
 
 type Fixture = 
