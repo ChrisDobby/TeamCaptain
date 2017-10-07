@@ -31,8 +31,8 @@ let start clientPath port =
 
             POST >=> choose [ 
 
-                path "/api/register/" >=> Teams.registerWithTeam
-                path "/api/confirmRegistration" >=> Teams.confirmRegistration
+                path "/api/register/" >=> Registrations.registerWithTeam
+                path "/api/confirmRegistration" >=> Registrations.confirmRegistration
             ]
 
             NOT_FOUND "Page not found."
