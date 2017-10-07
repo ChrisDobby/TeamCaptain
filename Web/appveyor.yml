@@ -10,7 +10,7 @@ before_build:
   - cmd: set PATH=C:\Program Files (x86)\MSBuild\14.0\Bin;%PATH%
 build_script:
   - cmd: pwd
-  - cmd: ls
-  - cmd: ./web/build.cmd All
+  - cmd: ls Web
+  - cmd: ./Web/build.cmd All
 test: off
 version: 0.0.1.{build}
