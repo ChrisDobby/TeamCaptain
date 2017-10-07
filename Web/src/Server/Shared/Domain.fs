@@ -16,11 +16,23 @@ type MatchLocation =
     | Home
     | Away
 
+type Availability =
+    | Available
+    | NotAvailable
+    | IfRequired
+
+type AvailabilityRecord =
+    {
+        PlayerUserName : string
+        Availability: Availability
+    }
+
 type Team = 
     {
         Name : string
         Captains : string[]
         Players: string[]
+        Availability: AvailabilityRecord[]
     }
 
 type Fixture = 
@@ -28,6 +40,11 @@ type Fixture =
         Opposition : string
         Location : MatchLocation 
     }
+
+type UserUpdateType =
+    | RegistrationAccepted of Registration
+    | RegistrationRequested of Registration
+    | AvailabilityUpdated of AvailabilityRecord
 
 // Model validation functions.  Write your validation functions once, for server and client!
 module Validation =

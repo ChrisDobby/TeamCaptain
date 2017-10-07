@@ -9,7 +9,10 @@
     <Compile Include="JsonWebToken.fs" />
     <Compile Include="FableJson.fs" />
     <Compile Include="Auth.fs" />
+    <Compile Include="Db/Teams.fs" />
+    <Compile Include="Db/Registrations.fs" />
     <Compile Include="Teams.fs" />
+    <Compile Include="Registrations.fs" />
     <Compile Include="WebServer.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
