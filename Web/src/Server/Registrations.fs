@@ -42,17 +42,16 @@ let confirmRegistration getTeamFromDB updateTeamInDb (ctx: HttpContext) =
                 |> System.Text.Encoding.UTF8.GetString
                 |> FableJson.ofJson<Domain.Registration>
 
-            let team = getTeamFromDB registration.TeamName
-
-            match team with
-                | None -> return! BAD_REQUEST "Team does not exist" ctx
-                | Some t -> 
-                    if not (Server.Teams.userIsTeamCaptain token.UserName t) then
-                        return! BAD_REQUEST "User is not authorised" ctx
-                    else
-                        let updatedTeam = {t with Players = Array.append t.Players [|registration.UserName|]} 
-                        updateTeamInDb updatedTeam
-                        return! Successful.OK (FableJson.toJson updatedTeam) ctx
+            return!
+                getTeamFromDB registration.TeamName
+                |> Option.map(fun team -> 
+                                    if not (Server.Teams.userIsTeamCaptain token.UserName team) then
+                                        BAD_REQUEST "User is not authorised" ctx
+                                    else
+                                        let updatedTeam = {team with Players = Array.append team.Players [|registration.UserName|]} 
+                                        updateTeamInDb updatedTeam
+                                        Successful.OK (FableJson.toJson updatedTeam) ctx)
+                |> Option.defaultValue (BAD_REQUEST "Team does not exist" ctx)
             
         with exn ->
             logger.error (eventX "Database not available" >> addExn exn)
