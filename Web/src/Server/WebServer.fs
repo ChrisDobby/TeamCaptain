@@ -27,12 +27,12 @@ let start clientPath port =
                 path "/" >=> Files.browseFileHome "index.html"
                 pathRegex @"/(public|js|css|Images)/(.*)\.(css|png|gif|jpg|js|map)" >=> Files.browseHome
 
-                path "/api/teams/" >=> Teams.getAllTeams ]
+                path "/api/teams/" >=> Teams.getAllTeams Server.Db.Teams.getTeams ]
 
             POST >=> choose [ 
 
-                path "/api/register/" >=> Registrations.registerWithTeam
-                path "/api/confirmRegistration" >=> Registrations.confirmRegistration
+                path "/api/register/" >=> Registrations.registerWithTeam Server.Db.Registrations.saveRegistration
+                path "/api/confirmRegistration" >=> Registrations.confirmRegistration Server.Db.Teams.getTeam Server.Db.Teams.updateTeam
             ]
 
             NOT_FOUND "Page not found."

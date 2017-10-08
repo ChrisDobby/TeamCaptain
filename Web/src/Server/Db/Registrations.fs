@@ -1,5 +1,5 @@
 module Server.Db.Registrations
     
-let saveRegistrationToDB registration userName = ()
+let saveRegistration registration userName = ()
 
-let confirmRegistrationInDb registration confirmingUserName = ()
+let confirmRegistration registration confirmingUserName = ()

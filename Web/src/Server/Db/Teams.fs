@@ -3,9 +3,9 @@ module Server.Db.Teams
 open System
 open Server.Domain
 
-let updateTeamInDb team = ()
+let updateTeam team = ()
 
-let getTeamsFromDB =
+let getTeams =
     [|
         { 
             Name = "Cleckheaton 2nds" 
@@ -22,12 +22,12 @@ let getTeamsFromDB =
         }
     |]
 
-let getTeamFromDB teamName = 
+let getTeam teamName = 
     let filteredTeam teams =
         match teams with
             | [||] -> None
             | _ -> Some(teams |> Array.exactlyOne)
 
     filteredTeam
-        (getTeamsFromDB |> 
+        (getTeams |> 
                 Array.filter(fun team -> String.Equals(team.Name, teamName, StringComparison.OrdinalIgnoreCase)))

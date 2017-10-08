@@ -18,10 +18,10 @@ let logger = Log.create "TeamCaptainTeams"
 let userIsTeamCaptain userName team =
     team.Captains |> Array.contains(userName)
 
-let getAllTeams (ctx: HttpContext) =
+let getAllTeams getTeamsFromDB (ctx: HttpContext) =
     Auth.useToken ctx (fun token -> async {
         try
-            let teams = Server.Db.Teams.getTeamsFromDB
+            let teams = getTeamsFromDB
             return! Successful.OK (FableJson.toJson teams) ctx
         with exn ->
             logger.error (eventX "SERVICE_UNAVAILABLE" >> addExn exn)

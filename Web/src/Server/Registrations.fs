@@ -12,7 +12,7 @@ open Suave.Logging.Message
 
 let logger = Log.create "TeamCaptainRegistrations"
 
-let registerWithTeam (ctx: HttpContext) =
+let registerWithTeam saveRegistrationToDB (ctx: HttpContext) =
     Auth.useToken ctx (fun token -> async {
         try
             let registration = 
@@ -24,7 +24,7 @@ let registerWithTeam (ctx: HttpContext) =
                 return! UNAUTHORIZED (sprintf "Registration is not matching user %s" token.UserName) ctx
             else
             if Validation.verifyRegistration registration then
-                Server.Db.Registrations.saveRegistrationToDB registration token.UserName
+                saveRegistrationToDB registration token.UserName
                 return! Successful.OK (FableJson.toJson registration) ctx
             else
                 return! BAD_REQUEST "Registration is not valid" ctx
@@ -34,7 +34,7 @@ let registerWithTeam (ctx: HttpContext) =
     })
 
 
-let confirmRegistration (ctx: HttpContext) =
+let confirmRegistration getTeamFromDB updateTeamInDb (ctx: HttpContext) =
     Auth.useToken ctx (fun token -> async {
         try
             let registration = 
@@ -42,7 +42,7 @@ let confirmRegistration (ctx: HttpContext) =
                 |> System.Text.Encoding.UTF8.GetString
                 |> FableJson.ofJson<Domain.Registration>
 
-            let team = Server.Db.Teams.getTeamFromDB registration.TeamName
+            let team = getTeamFromDB registration.TeamName
 
             match team with
                 | None -> return! BAD_REQUEST "Team does not exist" ctx
@@ -51,7 +51,7 @@ let confirmRegistration (ctx: HttpContext) =
                         return! BAD_REQUEST "User is not authorised" ctx
                     else
                         let updatedTeam = {t with Players = Array.append t.Players [|registration.UserName|]} 
-                        Server.Db.Teams.updateTeamInDb updatedTeam
+                        updateTeamInDb updatedTeam
                         return! Successful.OK (FableJson.toJson updatedTeam) ctx
             
         with exn ->
