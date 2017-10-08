@@ -34,9 +34,15 @@ let createTableEntity name config captains players =
     
     entity
 
-let updateTeam connection team = async {
+let updateTeam connection (team: Team) = async {
     let! table = Tables.teamsTable connection
     let entity = createTableEntity team.Name team.Config team.Captains team.Players
+    return! table.ExecuteAsync(TableOperation.InsertOrReplace entity) |> Async.AwaitTask |> Async.Ignore
+}
+
+let registerTeam connection teamRequest = async {
+    let! table = Tables.teamsTable connection
+    let entity = createTableEntity teamRequest.Name teamRequest.Config [teamRequest.UserName] [teamRequest.UserName] 
     return! table.ExecuteAsync(TableOperation.InsertOrReplace entity) |> Async.AwaitTask |> Async.Ignore
 }
 

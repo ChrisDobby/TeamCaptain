@@ -44,6 +44,13 @@ type Team =
         Players: string list
     }
 
+type RegisterTeamRequest = 
+    {
+        Name: string
+        Config: TeamConfig
+        UserName: string
+    }
+
 type Fixture = 
     {
         Opposition: string

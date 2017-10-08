@@ -21,9 +21,19 @@ let getTeam teamName =
 
 let saveRegistration registration = registrations <- registration::registrations
 
-let updateTeam team = 
-    teams <- List.fold (fun acc teamElement -> 
+let updateTeam (team: Team) = 
+    teams <- List.fold (fun acc (teamElement: Team) -> 
         if String.Equals(team.Name, teamElement.Name, StringComparison.OrdinalIgnoreCase) then
             team::acc
         else
             teamElement::acc) [] teams
+
+let registerTeam teamRequest = 
+    teams <- 
+        { 
+            Name = teamRequest.Name
+            Config = teamRequest.Config
+            Captains = [teamRequest.UserName]
+            Players = [teamRequest.UserName]
+        }
+        :: teams
