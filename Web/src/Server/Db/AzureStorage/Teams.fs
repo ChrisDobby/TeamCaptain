@@ -16,8 +16,8 @@ let createTeam (entity: DynamicTableEntity) =
                 SelectionNotifyDay = entity.Properties.["SelectionNotifyDay"].Int32Value.Value
                 SelectionNotifyTime = entity.Properties.["SelectionNotifyTime"].Int32Value.Value
             }
-        Captains = []
-        Players = []        
+        Captains = entity.Properties.["Captains"].StringValue |> Server.FableJson.ofJson
+        Players = entity.Properties.["Players"].StringValue |> Server.FableJson.ofJson
     }
 
 let createTableEntity name config captains players =
