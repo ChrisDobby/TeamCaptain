@@ -10,7 +10,7 @@ open Suave.Operators
 open Suave.RequestErrors
 
 // Fire up our web server!
-let start clientPath port =
+let start clientPath port connection =
     if not (Directory.Exists clientPath) then
         failwithf "Client-HomePath '%s' doesn't exist." clientPath
 
@@ -21,18 +21,24 @@ let start clientPath port =
             homeFolder = Some clientPath
             bindings = [ HttpBinding.create HTTP (IPAddress.Parse "0.0.0.0") port] }
 
+    let getTeams, getTeam, saveRegistration, updateTeam = 
+        Server.Db.Teams.getTeams connection, 
+        Server.Db.Teams.getTeam connection,
+        Server.Db.Registrations.saveRegistration connection,
+        Server.Db.Teams.updateTeam connection
+
     let app =
         choose [
             GET >=> choose [
                 path "/" >=> Files.browseFileHome "index.html"
                 pathRegex @"/(public|js|css|Images)/(.*)\.(css|png|gif|jpg|js|map)" >=> Files.browseHome
 
-                path "/api/teams/" >=> Teams.getAllTeams Server.Db.Teams.getTeams ]
+                path "/api/teams/" >=> Teams.getAllTeams getTeams ]
 
             POST >=> choose [ 
 
-                path "/api/register/" >=> Registrations.registerWithTeam Server.Db.Registrations.saveRegistration
-                path "/api/confirmRegistration" >=> Registrations.confirmRegistration Server.Db.Teams.getTeam Server.Db.Teams.updateTeam
+                path "/api/register/" >=> Registrations.registerWithTeam saveRegistration
+                path "/api/confirmRegistration" >=> Registrations.confirmRegistration getTeam updateTeam
             ]
 
             NOT_FOUND "Page not found."

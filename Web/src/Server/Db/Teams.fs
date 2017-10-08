@@ -3,9 +3,9 @@ module Server.Db.Teams
 open System
 open Server.Domain
 
-let updateTeam team = ()
+let updateTeam connection team = ()
 
-let getTeams =
+let getTeams connection =
     [|
         { 
             Name = "Cleckheaton 2nds" 
@@ -22,12 +22,12 @@ let getTeams =
         }
     |]
 
-let getTeam teamName = 
+let getTeam connection teamName = 
     let filteredTeam teams =
         match teams with
             | [||] -> None
             | _ -> Some(teams |> Array.exactlyOne)
 
     filteredTeam
-        (getTeams |> 
+        ((getTeams connection) |> 
                 Array.filter(fun team -> String.Equals(team.Name, teamName, StringComparison.OrdinalIgnoreCase)))

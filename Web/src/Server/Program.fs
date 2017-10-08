@@ -30,8 +30,14 @@ let main args =
                     else @"./client"
             |> Path.GetFullPath
 
+        let connection = 
+            args
+            |> Array.tryFind(fun arg -> arg.StartsWith("Connection="))
+            |> Option.map(fun arg -> arg.Substring "Connection=".Length)
+            |> Option.defaultValue ""
+
         let port = getPortsOrDefault 8085us
-        WebServer.start clientPath port
+        WebServer.start clientPath port connection
         0
     with
     | exn ->
