@@ -8,8 +8,8 @@ type JWT = string
 
 type Registration = 
     {
-        TeamName : string
-        UserName : string
+        TeamName: string
+        UserName: string
     }
 
 type MatchLocation = 
@@ -23,28 +23,44 @@ type Availability =
 
 type AvailabilityRecord =
     {
-        PlayerUserName : string
+        PlayerUserName: string
         Availability: Availability
+    }
+
+type TeamConfig =
+    {
+        NumberOfPlayers: int
+        AvailabilityCheckDay: int
+        AvailabilityCheckTime: int
+        SelectionNotifyDay: int
+        SelectionNotifyTime: int
     }
 
 type Team = 
     {
-        Name : string
-        Captains : string[]
+        Name: string
+        Config: TeamConfig
+        Captains: string[]
         Players: string[]
-        Availability: AvailabilityRecord[]
     }
 
 type Fixture = 
     {
-        Opposition : string
-        Location : MatchLocation 
+        Opposition: string
+        Location: MatchLocation 
+        Availability: AvailabilityRecord[]
     }
 
 type UserUpdateType =
     | RegistrationAccepted of Registration
     | RegistrationRequested of Registration
     | AvailabilityUpdated of AvailabilityRecord
+
+type UserUpdate =
+    {
+        UserName: string
+        UpdateType: UserUpdateType
+    }
 
 // Model validation functions.  Write your validation functions once, for server and client!
 module Validation =

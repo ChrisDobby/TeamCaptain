@@ -11,7 +11,14 @@ let getTeamsFromDB =
             Name = "Cleckheaton 2nds" 
             Captains = [|"CleckCaptain"|] 
             Players = [||]
-            Availability = [||]
+            Config = 
+            {
+                NumberOfPlayers = 11
+                AvailabilityCheckDay = 2
+                AvailabilityCheckTime = 14
+                SelectionNotifyDay = 4
+                SelectionNotifyTime = 9
+            }
         }
     |]
 
