@@ -16,12 +16,12 @@ open Suave.Logging.Message
 let logger = Log.create "TeamCaptainTeams"
 
 let userIsTeamCaptain userName team =
-    team.Captains |> Array.contains(userName)
+    team.Captains |> List.contains(userName)
 
 let getAllTeams getTeamsFromDB (ctx: HttpContext) =
     Auth.useToken ctx (fun token -> async {
         try
-            let teams = getTeamsFromDB
+            let! teams = getTeamsFromDB
             return! Successful.OK (FableJson.toJson teams) ctx
         with exn ->
             logger.error (eventX "SERVICE_UNAVAILABLE" >> addExn exn)

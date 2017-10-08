@@ -24,7 +24,7 @@ let registerWithTeam saveRegistrationToDB (ctx: HttpContext) =
                 return! UNAUTHORIZED (sprintf "Registration is not matching user %s" token.UserName) ctx
             else
             if Validation.verifyRegistration registration then
-                saveRegistrationToDB registration token.UserName
+                do! saveRegistrationToDB registration
                 return! Successful.OK (FableJson.toJson registration) ctx
             else
                 return! BAD_REQUEST "Registration is not valid" ctx
@@ -42,16 +42,17 @@ let confirmRegistration getTeamFromDB updateTeamInDb (ctx: HttpContext) =
                 |> System.Text.Encoding.UTF8.GetString
                 |> FableJson.ofJson<Domain.Registration>
 
-            return!
-                getTeamFromDB registration.TeamName
-                |> Option.map(fun team -> 
-                                    if not (Server.Teams.userIsTeamCaptain token.UserName team) then
-                                        BAD_REQUEST "User is not authorised" ctx
-                                    else
-                                        let updatedTeam = {team with Players = Array.append team.Players [|registration.UserName|]} 
-                                        updateTeamInDb updatedTeam
-                                        Successful.OK (FableJson.toJson updatedTeam) ctx)
-                |> Option.defaultValue (BAD_REQUEST "Team does not exist" ctx)
+            let! team = getTeamFromDB registration.TeamName
+
+            if team = None then
+                return! BAD_REQUEST "Team does not exist" ctx
+            else
+            if not (Server.Teams.userIsTeamCaptain token.UserName team.Value) then
+                return! BAD_REQUEST "User is not authorised" ctx
+            else
+                let updatedTeam = { team.Value with Players = registration.UserName::team.Value.Players } 
+                do! updateTeamInDb updatedTeam
+                return! Successful.OK (FableJson.toJson updatedTeam) ctx
             
         with exn ->
             logger.error (eventX "Database not available" >> addExn exn)

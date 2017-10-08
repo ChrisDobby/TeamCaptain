@@ -9,10 +9,12 @@
     <Compile Include="JsonWebToken.fs" />
     <Compile Include="FableJson.fs" />
     <Compile Include="Auth.fs" />
-    <Compile Include="Db/Teams.fs" />
-    <Compile Include="Db/Registrations.fs" />
     <Compile Include="Teams.fs" />
     <Compile Include="Registrations.fs" />
+    <Compile Include="Db/AzureStorage/Tables.fs" />
+    <Compile Include="Db/AzureStorage/Teams.fs" />
+    <Compile Include="Db/AzureStorage/Registrations.fs" />
+    <Compile Include="Db/InMemory/Data.fs" />
     <Compile Include="WebServer.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

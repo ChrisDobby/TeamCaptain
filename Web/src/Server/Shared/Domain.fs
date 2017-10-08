@@ -40,15 +40,15 @@ type Team =
     {
         Name: string
         Config: TeamConfig
-        Captains: string[]
-        Players: string[]
+        Captains: string list
+        Players: string list
     }
 
 type Fixture = 
     {
         Opposition: string
         Location: MatchLocation 
-        Availability: AvailabilityRecord[]
+        Availability: AvailabilityRecord list
     }
 
 type UserUpdateType =

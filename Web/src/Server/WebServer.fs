@@ -9,8 +9,24 @@ open Suave.Filters
 open Suave.Operators
 open Suave.RequestErrors
 
+type Database = 
+    | AzureStorage of Connection: string
+    | InMemory
+
+let azureDataFunctions connection = 
+    Server.Db.AzureStorage.Teams.getTeams connection, 
+    Server.Db.AzureStorage.Teams.getTeam connection,
+    Server.Db.AzureStorage.Registrations.saveRegistration connection,
+    Server.Db.AzureStorage.Teams.updateTeam connection
+
+let inMemoryDataFunctions =
+    async { return Server.Db.InMemory.Data.getTeams },
+    Server.Db.InMemory.Data.getTeam >> async.Return,
+    Server.Db.InMemory.Data.saveRegistration >> async.Return,
+    Server.Db.InMemory.Data.updateTeam >> async.Return
+
 // Fire up our web server!
-let start clientPath port connection =
+let start clientPath port database =
     if not (Directory.Exists clientPath) then
         failwithf "Client-HomePath '%s' doesn't exist." clientPath
 
@@ -21,11 +37,10 @@ let start clientPath port connection =
             homeFolder = Some clientPath
             bindings = [ HttpBinding.create HTTP (IPAddress.Parse "0.0.0.0") port] }
 
-    let getTeams, getTeam, saveRegistration, updateTeam = 
-        Server.Db.Teams.getTeams connection, 
-        Server.Db.Teams.getTeam connection,
-        Server.Db.Registrations.saveRegistration connection,
-        Server.Db.Teams.updateTeam connection
+    let getTeams, getTeam, saveRegistration, updateTeam =
+        (match database with
+            | AzureStorage(connection) -> azureDataFunctions connection
+            | InMemory -> inMemoryDataFunctions)
 
     let app =
         choose [
