@@ -7,6 +7,8 @@ let mutable teams: Team list = []
 
 let mutable registrations: Registration list = []
 
+let mutable fixtures: Fixture list = []
+
 let getTeams = teams
 
 let getTeam teamName =
@@ -37,3 +39,6 @@ let registerTeam teamRequest =
             Players = [teamRequest.UserName]
         }
         :: teams
+
+let fixturesForTeams teams =
+    fixtures |> List.filter(fun fixture -> teams |> List.contains fixture.TeamName)

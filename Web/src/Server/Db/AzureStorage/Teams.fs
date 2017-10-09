@@ -7,7 +7,7 @@ open Microsoft.WindowsAzure.Storage.Table
 
 let createTeam (entity: DynamicTableEntity) =
     {
-        Name = entity.PartitionKey
+        Name = entity.RowKey
         Config = 
             {
                 NumberOfPlayers = entity.Properties.["NumberOfPlayers"].Int32Value.Value
@@ -22,8 +22,8 @@ let createTeam (entity: DynamicTableEntity) =
 
 let createTableEntity name config captains players =
     let entity = DynamicTableEntity()
-    entity.PartitionKey <- name
-    entity.RowKey <- name.GetHashCode() |> string
+    entity.PartitionKey <- "Teams"
+    entity.RowKey <- name
     entity.Properties.["NumberOfPlayers"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.NumberOfPlayers))
     entity.Properties.["AvailabilityCheckDay"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.AvailabilityCheckDay))
     entity.Properties.["AvailabilityCheckTime"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.AvailabilityCheckTime))
@@ -56,7 +56,7 @@ let getTeams connection = async {
 let getTeam connection teamName = async {
     let! teams = async {
         let! table = Tables.teamsTable connection
-        let query = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, teamName)
+        let query = TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, teamName)
         return! table.ExecuteQuerySegmentedAsync(TableQuery(FilterString = query), null) |> Async.AwaitTask }
 
     return

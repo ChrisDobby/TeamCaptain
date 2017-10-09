@@ -11,3 +11,4 @@ let table name connection = async {
 
 let teamsTable connection = table "team" connection
 let registrationsTable connection = table "registration" connection
+let fixturesTable connection = table "fixture" connection

@@ -53,6 +53,7 @@ type RegisterTeamRequest =
 
 type Fixture = 
     {
+        TeamName: string
         Opposition: string
         Location: MatchLocation 
         Availability: AvailabilityRecord list
@@ -82,5 +83,5 @@ module Validation =
     let verifyRegistrationTeam teamName =
         if String.IsNullOrWhiteSpace(teamName) then Some("No team name specified") else
         None    
-    let verifyRegistration registration =
+    let verifyRegistration (registration: Registration) =
         verifyRegistrationTeam registration.TeamName = None

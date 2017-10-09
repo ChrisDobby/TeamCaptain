@@ -1,17 +1,17 @@
 module Server.Db.AzureStorage.Registrations
 
+open System
 open Server.Domain
 open Microsoft.WindowsAzure.Storage
 open Microsoft.WindowsAzure.Storage.Table
     
-let saveRegistration connection registration = async {
+let saveRegistration connection (registration: Registration) = async {
     let! table = Tables.registrationsTable connection
     let entity = DynamicTableEntity()
-    entity.PartitionKey <- sprintf "%s%s" registration.TeamName registration.UserName
-    entity.RowKey <- (sprintf "%s%s" registration.TeamName registration.UserName).GetHashCode() |> string
+    entity.PartitionKey <- registration.TeamName
+    entity.RowKey <- registration.UserName
 
-    entity.Properties.["TeamName"] <- EntityProperty.GeneratePropertyForString registration.TeamName
-    entity.Properties.["UserName"] <- EntityProperty.GeneratePropertyForString registration.UserName
+    entity.Properties.["RegisteredDateTime"] <- EntityProperty.GeneratePropertyForDateTimeOffset (Nullable<DateTimeOffset> DateTimeOffset.Now)
 
     return! table.ExecuteAsync(TableOperation.InsertOrReplace entity) |> Async.AwaitTask |> Async.Ignore }
 

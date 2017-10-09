@@ -18,14 +18,16 @@ let azureDataFunctions connection =
     Server.Db.AzureStorage.Teams.getTeam connection,
     Server.Db.AzureStorage.Registrations.saveRegistration connection,
     Server.Db.AzureStorage.Teams.updateTeam connection,
-    Server.Db.AzureStorage.Teams.registerTeam connection
+    Server.Db.AzureStorage.Teams.registerTeam connection,
+    Server.Db.AzureStorage.Fixtures.getFixturesForTeams connection
 
 let inMemoryDataFunctions =
     async { return Server.Db.InMemory.Data.getTeams },
     Server.Db.InMemory.Data.getTeam >> async.Return,
     Server.Db.InMemory.Data.saveRegistration >> async.Return,
     Server.Db.InMemory.Data.updateTeam >> async.Return,
-    Server.Db.InMemory.Data.registerTeam >> async.Return
+    Server.Db.InMemory.Data.registerTeam >> async.Return,
+    Server.Db.InMemory.Data.fixturesForTeams >> async.Return
 
 // Fire up our web server!
 let start clientPath port database =
@@ -39,7 +41,7 @@ let start clientPath port database =
             homeFolder = Some clientPath
             bindings = [ HttpBinding.create HTTP (IPAddress.Parse "0.0.0.0") port] }
 
-    let getTeams, getTeam, saveRegistration, updateTeam, registerTeam =
+    let getTeams, getTeam, saveRegistration, updateTeam, registerTeam, fixturesForTeams =
         (match database with
             | AzureStorage(connection) -> azureDataFunctions connection
             | InMemory -> inMemoryDataFunctions)
@@ -50,7 +52,8 @@ let start clientPath port database =
                 path "/" >=> Files.browseFileHome "index.html"
                 pathRegex @"/(public|js|css|Images)/(.*)\.(css|png|gif|jpg|js|map)" >=> Files.browseHome
 
-                path "/api/teams/" >=> Teams.getAllTeams getTeams ]
+                path "/api/teams/" >=> Teams.getAllTeams getTeams
+                path "/api/userDetails/" >=> UserDetails.get getTeams fixturesForTeams ]
 
             POST >=> choose [ 
 
