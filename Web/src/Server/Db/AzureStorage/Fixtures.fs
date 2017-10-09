@@ -31,3 +31,13 @@ let getFixturesForTeams connection teams = async {
         List.append fixtures acc
     ) [] teams
 }
+
+let saveFixture connection fixture = async {
+    let! table = Tables.fixturesTable connection
+    let entity = DynamicTableEntity()
+    entity.PartitionKey <- fixture.TeamName
+    entity.RowKey <- (sprintf "%s%s" fixture.Opposition (fixture.Location.ToString())).GetHashCode() |> string
+    entity.Properties.["Opposition"] <- EntityProperty.GeneratePropertyForString fixture.Opposition
+    entity.Properties.["Location"] <- EntityProperty.GeneratePropertyForString (fixture.Location.ToString())
+    return! table.ExecuteAsync(TableOperation.InsertOrReplace entity) |> Async.AwaitTask |> Async.Ignore
+}

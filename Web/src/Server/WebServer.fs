@@ -19,7 +19,8 @@ let azureDataFunctions connection =
     Server.Db.AzureStorage.Registrations.saveRegistration connection,
     Server.Db.AzureStorage.Teams.updateTeam connection,
     Server.Db.AzureStorage.Teams.registerTeam connection,
-    Server.Db.AzureStorage.Fixtures.getFixturesForTeams connection
+    Server.Db.AzureStorage.Fixtures.getFixturesForTeams connection,
+    Server.Db.AzureStorage.Fixtures.saveFixture connection
 
 let inMemoryDataFunctions =
     async { return Server.Db.InMemory.Data.getTeams },
@@ -27,7 +28,8 @@ let inMemoryDataFunctions =
     Server.Db.InMemory.Data.saveRegistration >> async.Return,
     Server.Db.InMemory.Data.updateTeam >> async.Return,
     Server.Db.InMemory.Data.registerTeam >> async.Return,
-    Server.Db.InMemory.Data.fixturesForTeams >> async.Return
+    Server.Db.InMemory.Data.fixturesForTeams >> async.Return,
+    Server.Db.InMemory.Data.saveFixture >> async.Return
 
 // Fire up our web server!
 let start clientPath port database =
@@ -41,7 +43,7 @@ let start clientPath port database =
             homeFolder = Some clientPath
             bindings = [ HttpBinding.create HTTP (IPAddress.Parse "0.0.0.0") port] }
 
-    let getTeams, getTeam, saveRegistration, updateTeam, registerTeam, fixturesForTeams =
+    let getTeams, getTeam, saveRegistration, updateTeam, registerTeam, fixturesForTeams, saveFixture =
         (match database with
             | AzureStorage(connection) -> azureDataFunctions connection
             | InMemory -> inMemoryDataFunctions)
@@ -60,6 +62,7 @@ let start clientPath port database =
                 path "/api/register/" >=> Registrations.registerWithTeam saveRegistration
                 path "/api/confirmRegistration" >=> Registrations.confirmRegistration getTeam updateTeam
                 path "/api/registerTeam" >=> Teams.registerTeam getTeams registerTeam
+                path "/api/createFixture/" >=> Fixtures.createFixture getTeam saveFixture
             ]
 
             NOT_FOUND "Page not found."

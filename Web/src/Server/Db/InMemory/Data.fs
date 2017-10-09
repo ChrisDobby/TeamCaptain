@@ -42,3 +42,6 @@ let registerTeam teamRequest =
 
 let fixturesForTeams teams =
     fixtures |> List.filter(fun fixture -> teams |> List.contains fixture.TeamName)
+
+let saveFixture fixture =
+    fixtures <- fixture::fixtures

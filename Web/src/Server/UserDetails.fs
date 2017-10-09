@@ -15,7 +15,7 @@ open Suave.Logging.Message
 
 let logger = Log.create "TeamCaptainUserDetails"
 
-let get (getTeamsFromDB: Async<Team list>) getFixturesForTeam (ctx: HttpContext) =
+let get getTeamsFromDB getFixturesForTeam (ctx: HttpContext) =
     Auth.useToken ctx (fun token -> async {
         try
             let! teams = getTeamsFromDB
