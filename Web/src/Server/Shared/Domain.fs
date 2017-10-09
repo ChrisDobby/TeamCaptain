@@ -69,6 +69,14 @@ type UserUpdate =
         UpdateType: UserUpdateType
     }
 
+type UserDetails =
+    {
+        UserName: string
+        TeamsCaptainOf: string list
+        TeamsMemberOf: string list
+        Fixtures: Fixture list
+    }
+
 // Model validation functions.  Write your validation functions once, for server and client!
 module Validation =
     let verifyRegistrationTeam teamName =
