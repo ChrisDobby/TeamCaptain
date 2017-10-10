@@ -40,8 +40,8 @@ let registerTeam teamRequest =
         }
         :: teams
 
-let fixturesForTeams teams =
-    fixtures |> List.filter(fun fixture -> teams |> List.contains fixture.TeamName)
+let fixturesForTeams date teams =
+    fixtures |> List.filter(fun fixture -> fixture.Date >= date && teams |> List.contains fixture.TeamName)
 
 let saveFixture fixture =
     fixtures <- fixture::fixtures

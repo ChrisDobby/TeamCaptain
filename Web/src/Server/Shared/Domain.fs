@@ -55,6 +55,7 @@ type Fixture =
     {
         TeamName: string
         Opposition: string
+        Date: DateTimeOffset
         Location: MatchLocation 
         Availability: AvailabilityRecord list
     }

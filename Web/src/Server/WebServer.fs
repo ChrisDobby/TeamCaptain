@@ -19,7 +19,7 @@ let azureDataFunctions connection =
     Server.Db.AzureStorage.Registrations.saveRegistration connection,
     Server.Db.AzureStorage.Teams.updateTeam connection,
     Server.Db.AzureStorage.Teams.registerTeam connection,
-    Server.Db.AzureStorage.Fixtures.getFixturesForTeams connection,
+    Server.Db.AzureStorage.Fixtures.getFixturesForTeams connection System.DateTimeOffset.Now,
     Server.Db.AzureStorage.Fixtures.saveFixture connection
 
 let inMemoryDataFunctions =
@@ -28,7 +28,7 @@ let inMemoryDataFunctions =
     Server.Db.InMemory.Data.saveRegistration >> async.Return,
     Server.Db.InMemory.Data.updateTeam >> async.Return,
     Server.Db.InMemory.Data.registerTeam >> async.Return,
-    Server.Db.InMemory.Data.fixturesForTeams >> async.Return,
+    Server.Db.InMemory.Data.fixturesForTeams System.DateTimeOffset.Now >> async.Return,
     Server.Db.InMemory.Data.saveFixture >> async.Return
 
 // Fire up our web server!
