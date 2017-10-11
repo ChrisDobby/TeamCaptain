@@ -65,7 +65,7 @@ open Client.Style
 let viewPage model dispatch =
     match model.Page with
     | Page.Home ->
-        [ div [] [ Home.view dispatch ]]
+        [ div [] [ Home.view Home.Model.Login dispatch ]]
 
 /// Constructs the view for the application given the model.
 let view model dispatch =
