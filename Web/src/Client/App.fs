@@ -65,7 +65,7 @@ open Client.Style
 let viewPage model dispatch =
     match model.Page with
     | Page.Home ->
-        [ words 20 ("Version " + ReleaseNotes.Version) ]
+        [ div [] [ Home.view dispatch ]]
 
 /// Constructs the view for the application given the model.
 let view model dispatch =
