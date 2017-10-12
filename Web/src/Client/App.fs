@@ -69,10 +69,7 @@ let viewPage model dispatch =
 
 /// Constructs the view for the application given the model.
 let view model dispatch =
-  div []
-    [
-      div [ centerStyle "column" ] (viewPage model dispatch)
-    ]
+  div [] (viewPage model dispatch)
 
 open Elmish.React
 open Elmish.Debug

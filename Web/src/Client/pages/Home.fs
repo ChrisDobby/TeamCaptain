@@ -31,8 +31,20 @@ let view model (dispatch: AppMsg -> unit) =
                     |> AppMsg.ProfileLoaded
                     |> dispatch
             } |> Promise.start
-        | Model.Login ->
+        | Model.Login -> 
             lock.show()
         | _ -> ()
 
-    div[] [ words 20 ("Version " + ReleaseNotes.Version) ]
+    nav[ ClassName "navbar navbar-inverse navbar-fixed-top"] 
+        [ 
+            div [ ClassName "container-fluid"]                
+                [
+                    div [ClassName "navbar-header"]
+                        [
+                            div [ClassName "navbar-brand"]
+                                [
+                                    words 16 ("Team captain " + ReleaseNotes.Version)
+                                ]
+                        ]
+                ]            
+        ]
