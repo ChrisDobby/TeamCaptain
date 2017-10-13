@@ -8,11 +8,11 @@ open Messages
 
 let myConfig = 
     createObj [
-       "oidcConformat" ==> true
        "auth" ==> createObj [
            "params" ==> createObj [
-                "scope"    ==> "openid profile"
-                "audience" ==> "fable.example.com"
+                "scope"    ==> "openid"
+                "audience" ==> "https://chrisdobby.eu.auth0.com/api/v2/"
+                "responseType" ==> "token id_token"
             ]
         ]
     ]

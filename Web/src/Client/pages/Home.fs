@@ -35,16 +35,13 @@ let view model (dispatch: AppMsg -> unit) =
             lock.show()
         | _ -> ()
 
-    nav[ ClassName "navbar navbar-inverse navbar-fixed-top"] 
+    nav[ ClassName "navbar navbar-inverse navbar-fixed-top"]
         [ 
-            div [ ClassName "container-fluid"]                
-                [
-                    div [ClassName "navbar-header"]
-                        [
-                            div [ClassName "navbar-brand"]
-                                [
-                                    words 16 ("Team captain " + ReleaseNotes.Version)
-                                ]
-                        ]
-                ]            
+            div [ ClassName "container-fluid" ] [ div [ ClassName "navbar-header" ]
+                [ div [ ClassName "navbar-brand" ]
+                    [
+                        words 16 ("Team captain " + ReleaseNotes.Version)
+                    ]
+                ]
+            ]            
         ]
