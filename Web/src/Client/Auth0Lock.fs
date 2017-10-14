@@ -74,11 +74,13 @@ let auth0lockParser str : Parser<_,_> =
                     s.Substring (0, 12)
                     s.Substring 13
                 ]
-
-            let f = l |> List.head
-            if f.StartsWith "access_token=" then 
-                List.append (splitByToken f) (l |> List.tail)
-            else l
+            match l with
+                | [] -> l
+                | f::t -> 
+                        if f.StartsWith "access_token=" then
+                            List.append (splitByToken f) t
+                        else
+                            l
             
         match parseAccessToken unvisited with
         | [] -> []
