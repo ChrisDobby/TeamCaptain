@@ -3,6 +3,7 @@ module Client.Auth0Lock
 open Fable.Import.JS
 open Fable.Core.JsInterop
 open Fable.PowerPack
+open Elmish.Browser.UrlParser
 
 open Messages
 
@@ -59,3 +60,31 @@ let promisify<'res,'err when 'res : null and 'err : null> fn =
     l |> Fable.PowerPack.Promise.create
 
 let auth0lock:JsConstructor<string,string,obj,Lock> = importDefault "auth0-lock/lib/index.js"
+
+let auth0lockParser str : Parser<_,_> =
+    let inner { visited = visited; unvisited = unvisited; args = args; value = value } =
+        let mkState visited unvisited args value =
+                { visited = visited
+                  unvisited = unvisited
+                  args = args
+                  value = value }
+        let parseAccessToken (l: string list) =
+            let splitByToken (s: string) =
+                [
+                    s.Substring (0, 12)
+                    s.Substring 13
+                ]
+
+            let f = l |> List.head
+            if f.StartsWith "access_token=" then 
+                List.append (splitByToken f) (l |> List.tail)
+            else l
+            
+        match parseAccessToken unvisited with
+        | [] -> []
+        | next :: rest ->
+            if next = str then
+                [ mkState (next :: visited) rest args value ]
+            else
+                []
+    inner
