@@ -14,16 +14,14 @@ type UserProfile =
 
 /// The different pages of the application. If you add a new page, then add an entry here.
 type Page = 
-  | Home 
+  | Home
+  | TokenCallback of token: string
 
 type AppMsg = 
-  | StorageFailure of exn
-  | ShowLogin
-  | Logout
-  | LoggedIn
-  | LoggedOut
   | ProfileLoaded of UserProfile
+  | StorageFailure of exn
+  | LoggedIn
 
-let toHash =
-  function
+let toHash = function
   | Home -> "#home"
+  | TokenCallback(_) -> "#home"

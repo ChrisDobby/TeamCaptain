@@ -21,7 +21,7 @@ let myConfig =
 type Callback<'TErr,'TRes>  = System.Func<'TErr,'TRes,unit>
 
 type [<AllowNullLiteral>] AuthResult =
-    abstract accessToken : string with get
+    abstract idToken : string with get
 
 type [<AllowNullLiteral>] Profile = 
     abstract name        : string with get
@@ -30,7 +30,7 @@ type [<AllowNullLiteral>] Profile =
     abstract picture     : string with get
 
 let toUserProfile (auth:AuthResult) (profile:Profile) = {
-        AccessToken = auth.accessToken
+        AccessToken = auth.idToken
         Name = profile.name
         Email = profile.email
         Picture = profile.picture
@@ -49,12 +49,13 @@ exception GenericAuthException of string*string
 
 let promisify<'res,'err when 'res : null and 'err : null> fn = 
     let l = fun resolve reject ->
-            fn (Callback<'err,'res>(
-                    fun err res ->
-                        if not <| isNull res then
-                            resolve res
-                        if not <| isNull err then
-                            GenericAuthException ("callbackException", (err |> Fable.Core.JsInterop.toJson))  |> reject
+        fn (Callback<'err,'res>(
+                fun err res ->
+                    if not <| isNull res then
+                        resolve res
+                    elif not <| isNull err then
+                        GenericAuthException ("callbackException", (err |> Fable.Core.JsInterop.toJson))  |> reject
+                    else
                         failwith "Both Result and Errors of callback are empty which should be impossible"
         ))
     l |> Fable.PowerPack.Promise.create

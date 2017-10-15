@@ -23,8 +23,8 @@ let view model (dispatch: AppMsg -> unit) =
             promise {
                     let! authResult = lock.resumeAuth token |> promisify
                     printfn "[Auth] Token received: %O" authResult
-                    let! profile = lock.getUserInfo authResult.accessToken |> promisify
-            
+                    
+                    let! profile = lock.getUserInfo token |> promisify            
                     printfn "[Auth] userProfile loaded %O" profile
 
                     toUserProfile authResult profile 
