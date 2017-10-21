@@ -1,18 +1,12 @@
 module Client.Style
 
-open System
 open Fable.Helpers.React.Props
 open Fable.Core
 open Fable.Core.JsInterop
 open Fable.Import
-open Elmish
-open Fable.Import.Browser
-open Fable.PowerPack
-open Elmish.Browser.Navigation
-open Elmish.Browser.UrlParser
 open Messages
-module R = Fable.Helpers.React
 
+module R = Fable.Helpers.React
 
 let viewLink page description =
   R.a [ Style [ Padding "0 20px" ]

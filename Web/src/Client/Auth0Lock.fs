@@ -1,8 +1,6 @@
 module Client.Auth0Lock
 
-open Fable.Import.JS
 open Fable.Core.JsInterop
-open Fable.PowerPack
 open Elmish.Browser.UrlParser
 
 open Messages
@@ -11,8 +9,8 @@ let myConfig =
     createObj [
        "auth" ==> createObj [
            "params" ==> createObj [
-                "scope"    ==> "openid"
-                "audience" ==> "https://chrisdobby.eu.auth0.com/api/v2/"
+                "scope"    ==> "openid profile"
+                "audience" ==> "https://chrisdobby.eu.auth0.com/userinfo"
                 "responseType" ==> "token id_token"
             ]
         ]
@@ -25,16 +23,15 @@ type [<AllowNullLiteral>] AuthResult =
 
 type [<AllowNullLiteral>] Profile = 
     abstract name        : string with get
-    abstract user_id     : string with get
-    abstract email       : string with get
+    abstract sub         : string with get
     abstract picture     : string with get
 
-let toUserProfile (auth:AuthResult) (profile:Profile) = {
-        AccessToken = auth.idToken
+let toUserProfile accessToken bearerToken (profile:Profile) = {
+        AccessToken = accessToken
+        BearerToken = bearerToken
         Name = profile.name
-        Email = profile.email
         Picture = profile.picture
-        UserId = profile.user_id
+        UserId = profile.sub
     }
 
 type Lock = 
@@ -62,7 +59,7 @@ let promisify<'res,'err when 'res : null and 'err : null> fn =
 
 let auth0lock:JsConstructor<string,string,obj,Lock> = importDefault "auth0-lock/lib/index.js"
 
-let auth0lockParser str : Parser<_,_> =
+let auth0lockParser () : Parser<_,_> =
     let inner { visited = visited; unvisited = unvisited; args = args; value = value } =
         let mkState visited unvisited args value =
                 { visited = visited
@@ -82,12 +79,24 @@ let auth0lockParser str : Parser<_,_> =
                             List.append (splitByToken f) t
                         else
                             l
-            
+
         match parseAccessToken unvisited with
         | [] -> []
         | next :: rest ->
-            if next = str then
+            if next = "access_token" then
                 [ mkState (next :: visited) rest args value ]
             else
                 []
     inner
+
+let auth0CallbackParser (str: string) = 
+    let tokenLength = str.IndexOf "&expires_in"
+    let expiresStart = tokenLength + 12
+    let expiresLength = (str.IndexOf "&token_type") - expiresStart
+    let bearerStart = (str.IndexOf "&id_token") + 10
+
+    (
+        str.Substring(0, tokenLength),
+        int (str.Substring(expiresStart, expiresLength)),
+        str.Substring bearerStart
+    )
