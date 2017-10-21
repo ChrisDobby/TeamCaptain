@@ -56,9 +56,14 @@ let urlUpdate (result:Page option) model =
             }, Cmd.none
 
 let init result =
+    let homeModel =
+        match Utils.load "teamcaptain.user" with
+            | None -> Home.None
+            | Some(user) -> Home.User user
+
     let m =
         { Page = Home
-          SubModel = HomeModel Home.None }
+          SubModel = HomeModel homeModel }
 
     let m,cmd = urlUpdate result m
     m,Cmd.batch[cmd]
