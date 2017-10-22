@@ -7,11 +7,12 @@
     <Compile Include="../Server/Shared/Domain.fs" />
     <Compile Include="Messages.fs" />
     <Compile Include="Style.fs" />
-    <Compile Include="Controls.fs" />
     <Compile Include="Utils.fs" />
     <Compile Include="Auth0Lock.fs" />
+    <Compile Include="pages/Header.fs" />
     <Compile Include="pages/Login.fs" />
     <Compile Include="pages/Home.fs" />
+    <Compile Include="pages/Dashboard.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

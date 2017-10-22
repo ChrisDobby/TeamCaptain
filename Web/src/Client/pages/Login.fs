@@ -3,7 +3,6 @@ module Client.Login
 open Fable.PowerPack
 
 open Client.Auth0Lock
-open Client.Controls
 open Messages
 
 let lock = auth0lock.Create("1MD87NRRLv6doHbNL7FDUMckd0npGshr", "chrisdobby.eu.auth0.com", myConfig)
@@ -25,4 +24,4 @@ let view model (dispatch: AppMsg -> unit) =
             } |> Promise.start
         | None -> lock.show()
 
-    [ navBar ReleaseNotes.Version ]
+    []

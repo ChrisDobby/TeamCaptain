@@ -19,6 +19,7 @@ type Page =
   | Home
   | TokenCallback of token: string
   | Login
+  | Dashboard
 
 type AppMsg = 
   | ShowLogin
@@ -32,4 +33,5 @@ let toHash = function
   | Home -> "#home"
   | TokenCallback(_) -> "#home"
   | Login -> "#login"
+  | Dashboard -> "#dashboard"
  
