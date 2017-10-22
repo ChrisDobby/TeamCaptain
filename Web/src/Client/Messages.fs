@@ -22,9 +22,11 @@ type Page =
 
 type AppMsg = 
   | ShowLogin
+  | Logout
   | ProfileLoaded of UserProfile
   | StorageFailure of exn
   | LoggedIn
+  | LoggedOut
 
 let toHash = function
   | Home -> "#home"

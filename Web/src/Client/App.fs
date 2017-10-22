@@ -85,6 +85,13 @@ let update msg model =
             { model with
                 Page = Login
             }, []
+        | Logout, _ -> 
+            let cmd = Cmd.ofFunc Utils.delete "teamcaptain.user" (fun _ -> LoggedOut) StorageFailure
+            { model with
+                Page = Home
+                SubModel = HomeModel Home.None
+            }, Cmd.batch[cmd]
+        | LoggedOut, _ -> model, []
 
 // VIEW
 

@@ -14,11 +14,11 @@ let view model (dispatch: AppMsg -> unit) =
     match model with 
         | User(user) -> 
                 [ 
-                    navBar ReleaseNotes.Version user 
-                    userImage user.Picture
+                    navBar ReleaseNotes.Version
+                    userDetails user (fun _ -> dispatch Logout)
                 ]
         | _ -> 
                 [
-                    navBar ReleaseNotes.Version None 
+                    navBar ReleaseNotes.Version
                     buttonLink "" (fun _ -> dispatch ShowLogin) [str "Login"]
                 ]

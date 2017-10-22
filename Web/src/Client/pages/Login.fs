@@ -25,4 +25,4 @@ let view model (dispatch: AppMsg -> unit) =
             } |> Promise.start
         | None -> lock.show()
 
-    [ navBar ReleaseNotes.Version None ]
+    [ navBar ReleaseNotes.Version ]
