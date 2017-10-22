@@ -19,7 +19,7 @@ let view model (dispatch: AppMsg -> unit) =
                     let! profile = lock.getUserInfo accessToken |> promisify            
                     printfn "[Auth] userProfile loaded %O" profile
 
-                    toUserProfile accessToken bearerToken profile 
+                    toUserProfile accessToken bearerToken expiry profile 
                     |> ProfileLoaded
                     |> dispatch
             } |> Promise.start

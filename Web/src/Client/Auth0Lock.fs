@@ -1,5 +1,6 @@
 module Client.Auth0Lock
 
+open System
 open Fable.Core.JsInterop
 open Elmish.Browser.UrlParser
 
@@ -25,13 +26,17 @@ type [<AllowNullLiteral>] Profile =
     abstract name        : string with get
     abstract sub         : string with get
     abstract picture     : string with get
+    abstract updated_at  : string with get
 
-let toUserProfile accessToken bearerToken (profile:Profile) = {
+let toUserProfile accessToken bearerToken (expiresInSeconds: int) (profile:Profile) = 
+    let update = DateTime.Parse profile.updated_at
+    {
         AccessToken = accessToken
         BearerToken = bearerToken
         Name = profile.name
         Picture = profile.picture
         UserId = profile.sub
+        Expiry = update.AddSeconds (float expiresInSeconds)
     }
 
 type Lock = 

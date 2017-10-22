@@ -59,13 +59,13 @@ let init result =
     let homeModel =
         match Utils.load "teamcaptain.user" with
             | None -> Home.None
-            | Some(user) -> Home.User user
+            | Some(user) -> if user.Expiry <= System.DateTime.UtcNow then
+                                Home.User user
+                            else
+                                Home.None
+         
+    let m,cmd = urlUpdate result { Page = Home; SubModel = HomeModel homeModel }
 
-    let m =
-        { Page = Home
-          SubModel = HomeModel homeModel }
-
-    let m,cmd = urlUpdate result m
     m,Cmd.batch[cmd]
 
 let update msg model =

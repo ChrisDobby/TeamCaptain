@@ -1,14 +1,17 @@
 module Client.Messages
 
+open System
+
 open Server.Domain
 
 type UserProfile = 
     {
-        AccessToken: JWT
-        BearerToken: JWT
-        Name       : string
-        Picture    : string
-        UserId     : string
+        AccessToken   : JWT
+        BearerToken   : JWT
+        Name          : string
+        Picture       : string
+        UserId        : string
+        Expiry        : DateTime
     }
 
 /// The different pages of the application. If you add a new page, then add an entry here.
