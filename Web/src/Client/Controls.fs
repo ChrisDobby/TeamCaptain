@@ -16,3 +16,6 @@ let navBar version user =
                 ]
             ]            
         ]
+
+let userImage image = 
+    img [ ClassName "img-circle"; Src image ]

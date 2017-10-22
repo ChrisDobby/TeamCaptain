@@ -13,7 +13,10 @@ type Model =
 let view model (dispatch: AppMsg -> unit) = 
     match model with 
         | User(user) -> 
-                [ navBar ReleaseNotes.Version user ]
+                [ 
+                    navBar ReleaseNotes.Version user 
+                    userImage user.Picture
+                ]
         | _ -> 
                 [
                     navBar ReleaseNotes.Version None 
