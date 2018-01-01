@@ -1,9 +1,6 @@
 module Server.Teams
 
-open System.IO
 open Giraffe
-open Giraffe.Tasks
-open System.Net
 open RequestErrors
 open ServerErrors
 open System
@@ -20,7 +17,7 @@ let teamExists teamName (teams: Team list) =
     teams |> List.map(fun team -> team.Name) |> List.contains(teamName)
 
 let getAllTeams (getTeamsFromDB: Task<Team list>) next (ctx: HttpContext) =
-    Auth.useToken next ctx (fun token -> task {
+    Auth.useToken next ctx (fun _ -> task {
         try
             let! teams = getTeamsFromDB
             return! Successful.OK (FableJson.toJson teams) next ctx

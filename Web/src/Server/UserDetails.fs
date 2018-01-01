@@ -1,11 +1,7 @@
 module Server.UserDetails
 
-open System.IO
 open Giraffe
-open System.Net
-open RequestErrors
 open ServerErrors
-open System
 open Server.Domain
 open Microsoft.AspNetCore.Http
 open Server

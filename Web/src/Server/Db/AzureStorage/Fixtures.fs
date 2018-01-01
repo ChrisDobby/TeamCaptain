@@ -3,7 +3,6 @@ module Server.Db.AzureStorage.Fixtures
 open System
 open Server.Domain
 open Giraffe
-open Microsoft.WindowsAzure.Storage
 open Microsoft.WindowsAzure.Storage.Table
 
 let createFixture (entity: DynamicTableEntity) =
@@ -20,7 +19,7 @@ let createFixture (entity: DynamicTableEntity) =
 let getFixturesForTeam connection team = task {
     let! fixtures = async {
         let! table = Tables.fixturesTable connection
-        let query = TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, team)
+        TableQuery.GenerateFilterCondition("PartitionKey", QueryComparisons.Equal, team) |> ignore
         return! table.ExecuteQuerySegmentedAsync(TableQuery(), null) |> Async.AwaitTask }
 
     return [ for fixture in fixtures -> createFixture fixture ] }

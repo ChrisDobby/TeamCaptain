@@ -1,7 +1,6 @@
 module Server.Db.AzureStorage.Tables
 
 open Microsoft.WindowsAzure.Storage
-open Microsoft.WindowsAzure.Storage.Table
 
 let table name connection = async {
     let client = (CloudStorageAccount.Parse connection).CreateCloudTableClient()

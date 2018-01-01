@@ -1,11 +1,9 @@
 /// Functions for managing the Suave web server.
 module Server.WebServer
 
-open System.IO
 open Giraffe
 open Giraffe.TokenRouter
 open RequestErrors
-open System.Threading.Tasks
 
 type Database = 
     | AzureStorage of Connection: string
