@@ -2,12 +2,10 @@
 module Server.WebServer
 
 open System.IO
-open Suave
-open Suave.Logging
-open System.Net
-open Suave.Filters
-open Suave.Operators
-open Suave.RequestErrors
+open Giraffe
+open Giraffe.TokenRouter
+open RequestErrors
+open System.Threading.Tasks
 
 type Database = 
     | AzureStorage of Connection: string
@@ -23,50 +21,34 @@ let azureDataFunctions connection =
     Server.Db.AzureStorage.Fixtures.saveFixture connection
 
 let inMemoryDataFunctions =
-    async { return Server.Db.InMemory.Data.getTeams },
-    Server.Db.InMemory.Data.getTeam >> async.Return,
-    Server.Db.InMemory.Data.saveRegistration >> async.Return,
-    Server.Db.InMemory.Data.updateTeam >> async.Return,
-    Server.Db.InMemory.Data.registerTeam >> async.Return,
-    Server.Db.InMemory.Data.fixturesForTeams System.DateTimeOffset.Now >> async.Return,
-    Server.Db.InMemory.Data.saveFixture >> async.Return
+    task { return Server.Db.InMemory.Data.getTeams },
+    (fun name -> task { return Server.Db.InMemory.Data.getTeam name }),
+    (fun reg -> task { return Server.Db.InMemory.Data.saveRegistration reg }),
+    (fun team -> task { return Server.Db.InMemory.Data.updateTeam team }),
+    (fun team -> task { return Server.Db.InMemory.Data.registerTeam team }),
+    (fun teams -> task { return Server.Db.InMemory.Data.fixturesForTeams System.DateTimeOffset.Now teams }),
+    (fun fix -> task { return Server.Db.InMemory.Data.saveFixture fix })
 
-// Fire up our web server!
-let start clientPath port database =
-    if not (Directory.Exists clientPath) then
-        failwithf "Client-HomePath '%s' doesn't exist." clientPath
-
-    let logger = Logging.Targets.create Logging.Info [| "Suave" |]
-    let serverConfig =
-        { defaultConfig with
-            logger = Targets.create LogLevel.Debug [|"Server"; "Server" |]
-            homeFolder = Some clientPath
-            bindings = [ HttpBinding.create HTTP (IPAddress.Parse "0.0.0.0") port] }
+let webApp database root =
 
     let getTeams, getTeam, saveRegistration, updateTeam, registerTeam, fixturesForTeams, saveFixture =
         (match database with
             | AzureStorage(connection) -> azureDataFunctions connection
             | InMemory -> inMemoryDataFunctions)
 
-    let app =
-        choose [
-            GET >=> choose [
-                path "/" >=> Files.browseFileHome "index.html"
-                pathRegex @"/(public|js|css|Images)/(.*)\.(css|png|gif|jpg|js|map)" >=> Files.browseHome
+    let notFound = NOT_FOUND "Page not found"
 
-                path "/api/teams/" >=> Teams.getAllTeams getTeams
-                path "/api/userDetails/" >=> UserDetails.get getTeams fixturesForTeams ]
+    router notFound [
+            GET [
+                route "/" (htmlFile (System.IO.Path.Combine(root,"index.html")))
 
-            POST >=> choose [ 
+                route "/api/teams/" (Teams.getAllTeams getTeams)
+                route "/api/userDetails/" (UserDetails.get getTeams fixturesForTeams) ]
 
-                path "/api/register/" >=> Registrations.registerWithTeam saveRegistration
-                path "/api/confirmRegistration" >=> Registrations.confirmRegistration getTeam updateTeam
-                path "/api/registerTeam" >=> Teams.registerTeam getTeams registerTeam
-                path "/api/createFixture/" >=> Fixtures.createFixture getTeam saveFixture
-            ]
-
-            NOT_FOUND "Page not found."
-
-        ] >=> logWithLevelStructured Logging.Info logger logFormatStructured
-
-    startWebServer serverConfig app
+            POST [ 
+                route "/api/register/" (Registrations.registerWithTeam saveRegistration)
+                route "/api/confirmRegistration" (Registrations.confirmRegistration getTeam updateTeam)
+                route "/api/registerTeam" (Teams.registerTeam getTeams registerTeam)
+                route "/api/createFixture/" (Fixtures.createFixture getTeam saveFixture)
+            ]        
+    ]

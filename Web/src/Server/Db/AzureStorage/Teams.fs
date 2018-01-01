@@ -2,7 +2,7 @@ module Server.Db.AzureStorage.Teams
 
 open System
 open Server.Domain
-open Microsoft.WindowsAzure.Storage
+open Giraffe
 open Microsoft.WindowsAzure.Storage.Table
 
 let createTeam (entity: DynamicTableEntity) =
@@ -34,26 +34,28 @@ let createTableEntity name config captains players =
     
     entity
 
-let updateTeam connection (team: Team) = async {
+let updateTeam connection (team: Team) = task {
     let! table = Tables.teamsTable connection
     let entity = createTableEntity team.Name team.Config team.Captains team.Players
-    return! table.ExecuteAsync(TableOperation.InsertOrReplace entity) |> Async.AwaitTask |> Async.Ignore
+    let! _ = table.ExecuteAsync(TableOperation.InsertOrReplace entity)
+    return ()
 }
 
-let registerTeam connection teamRequest = async {
+let registerTeam connection teamRequest = task {
     let! table = Tables.teamsTable connection
     let entity = createTableEntity teamRequest.Name teamRequest.Config [teamRequest.UserName] [teamRequest.UserName] 
-    return! table.ExecuteAsync(TableOperation.InsertOrReplace entity) |> Async.AwaitTask |> Async.Ignore
+    let! _ = table.ExecuteAsync(TableOperation.InsertOrReplace entity)
+    return ()
 }
 
-let getTeams connection = async {
+let getTeams connection = task {
     let! teams = async {
         let! table = Tables.teamsTable connection
         return! table.ExecuteQuerySegmentedAsync(TableQuery(), null) |> Async.AwaitTask }
 
     return [ for team in teams -> createTeam team ]}
 
-let getTeam connection teamName = async {
+let getTeam connection teamName = task {
     let! teams = async {
         let! table = Tables.teamsTable connection
         let query = TableQuery.GenerateFilterCondition("RowKey", QueryComparisons.Equal, teamName)

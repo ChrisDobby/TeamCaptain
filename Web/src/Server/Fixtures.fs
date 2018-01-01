@@ -1,38 +1,30 @@
 module Server.Fixtures
 
-open System.IO
-open Suave
-open Suave.Logging
-open System.Net
-open Suave.Filters
-open Suave.Operators
-open Suave.RequestErrors
-open System
-open Suave.ServerErrors
+open Giraffe
+open RequestErrors
+open ServerErrors
 open Server.Domain
-open Suave.Logging
-open Suave.Logging.Message
+open Microsoft.AspNetCore.Http
+open Server
+open Microsoft.Extensions.Logging
+open System.Threading.Tasks
 
-let logger = Log.create "TeamCaptainFixtures"
-
-let createFixture getTeamFromDB saveFixture (ctx: HttpContext) =
-    Auth.useToken ctx (fun token -> async {
+let createFixture (getTeamFromDB: string -> Task<Domain.Team option>) (saveFixture: Fixture -> Task<unit>) next (ctx: HttpContext) =
+    Auth.useToken next ctx (fun token -> task {
         try
-            let fixture = 
-                ctx.request.rawForm
-                |> System.Text.Encoding.UTF8.GetString
-                |> FableJson.ofJson<Domain.Fixture>
+            let! fixture = FableJson.getJsonFromCtx<Domain.Fixture> ctx 
 
             let! team = getTeamFromDB fixture.TeamName
             if team = None then
-                return! BAD_REQUEST "Team does not exist" ctx
+                return! BAD_REQUEST "Team does not exist" next ctx
             else
             if not (team.Value.Captains |> List.contains(token.UserName)) then
-                return! BAD_REQUEST "User does not have permission" ctx
+                return! BAD_REQUEST "User does not have permission" next ctx
             else
                 do! saveFixture fixture
-                return! Successful.OK(FableJson.toJson fixture) ctx
+                return! Successful.OK(FableJson.toJson fixture) next ctx
         with exn ->
-            logger.error (eventX "SERVICE_UNAVAILABLE" >> addExn exn)
-            return! SERVICE_UNAVAILABLE "Database not available" ctx
+            let logger = ctx.GetLogger "TeamCaptainFixtures"
+            logger.LogError (EventId(), exn, "SERVICE_UNAVAILABLE")
+            return! SERVICE_UNAVAILABLE "Database not available" next ctx        
     })

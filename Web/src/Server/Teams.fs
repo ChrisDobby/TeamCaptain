@@ -1,19 +1,17 @@
 module Server.Teams
 
 open System.IO
-open Suave
-open Suave.Logging
+open Giraffe
+open Giraffe.Tasks
 open System.Net
-open Suave.Filters
-open Suave.Operators
-open Suave.RequestErrors
+open RequestErrors
+open ServerErrors
 open System
-open Suave.ServerErrors
 open Server.Domain
-open Suave.Logging
-open Suave.Logging.Message
-
-let logger = Log.create "TeamCaptainTeams"
+open Microsoft.AspNetCore.Http
+open Microsoft.Extensions.Logging
+open System.Threading.Tasks
+open Server
 
 let userIsTeamCaptain userName team =
     team.Captains |> List.contains(userName)
@@ -21,34 +19,33 @@ let userIsTeamCaptain userName team =
 let teamExists teamName (teams: Team list) =
     teams |> List.map(fun team -> team.Name) |> List.contains(teamName)
 
-let getAllTeams getTeamsFromDB (ctx: HttpContext) =
-    Auth.useToken ctx (fun token -> async {
+let getAllTeams (getTeamsFromDB: Task<Team list>) next (ctx: HttpContext) =
+    Auth.useToken next ctx (fun token -> task {
         try
             let! teams = getTeamsFromDB
-            return! Successful.OK (FableJson.toJson teams) ctx
+            return! Successful.OK (FableJson.toJson teams) next ctx
         with exn ->
-            logger.error (eventX "SERVICE_UNAVAILABLE" >> addExn exn)
-            return! SERVICE_UNAVAILABLE "Database not available" ctx
+            let logger = ctx.GetLogger "TeamCaptainTeams"
+            logger.LogError (EventId(), exn, "SERVICE_UNAVAILABLE")
+            return! SERVICE_UNAVAILABLE "Database not available" next ctx
     })
 
-let registerTeam (getTeamsFromDB: Async<Team list>) saveTeam (ctx: HttpContext) =
-    Auth.useToken ctx (fun token -> async {
+let registerTeam (getTeamsFromDB: Task<Team list>) (saveTeam: Domain.RegisterTeamRequest -> Task<unit>) next (ctx: HttpContext) =
+    Auth.useToken next ctx (fun token -> task {
         try
-            let registerRequest = 
-                ctx.request.rawForm
-                |> System.Text.Encoding.UTF8.GetString
-                |> FableJson.ofJson<Domain.RegisterTeamRequest>
+            let! registerRequest = FableJson.getJsonFromCtx<Domain.RegisterTeamRequest> ctx 
 
             let! teams = getTeamsFromDB
             if not (String.Equals(registerRequest.UserName, token.UserName, StringComparison.OrdinalIgnoreCase)) then
-                return! BAD_REQUEST "Incorrect user" ctx
+                return! BAD_REQUEST "Incorrect user" next ctx
             else
             if teamExists registerRequest.Name teams then
-                return! BAD_REQUEST "Team already exists" ctx
+                return! BAD_REQUEST "Team already exists" next ctx
             else
                 let! newTeam = saveTeam registerRequest
-                return! Successful.OK(FableJson.toJson newTeam) ctx
+                return! Successful.OK(FableJson.toJson newTeam) next ctx
         with exn ->
-            logger.error (eventX "SERVICE_UNAVAILABLE" >> addExn exn)
-            return! SERVICE_UNAVAILABLE "Database not available" ctx
+            let logger = ctx.GetLogger "TeamCaptainTeams"
+            logger.LogError (EventId(), exn, "SERVICE_UNAVAILABLE")
+            return! SERVICE_UNAVAILABLE "Database not available" next ctx
     })

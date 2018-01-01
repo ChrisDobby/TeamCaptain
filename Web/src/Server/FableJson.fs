@@ -1,7 +1,9 @@
 /// Functions to serialize and deserialize JSON, with client side support.
 module Server.FableJson
 
+open Giraffe
 open Newtonsoft.Json
+open Microsoft.AspNetCore.Http
 
 // The Fable.JsonConverter serializes F# types so they can be deserialized on the
 // client side by Fable into full type instances, see http://fable.io/blog/Introducing-0-7.html#JSON-Serialization
@@ -14,3 +16,8 @@ let toJson value =
 
 let ofJson<'a> (json:string) : 'a =
     JsonConvert.DeserializeObject<'a>(json, [|jsonConverter|])
+
+let getJsonFromCtx<'a> (ctx: HttpContext) = task {
+    let! t = ctx.ReadBodyFromRequestAsync()
+    return ofJson<'a> t
+}

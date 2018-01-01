@@ -1,22 +1,19 @@
 module Server.UserDetails
 
 open System.IO
-open Suave
-open Suave.Logging
+open Giraffe
 open System.Net
-open Suave.Filters
-open Suave.Operators
-open Suave.RequestErrors
+open RequestErrors
+open ServerErrors
 open System
-open Suave.ServerErrors
 open Server.Domain
-open Suave.Logging
-open Suave.Logging.Message
+open Microsoft.AspNetCore.Http
+open Server
+open Microsoft.Extensions.Logging
+open System.Threading.Tasks
 
-let logger = Log.create "TeamCaptainUserDetails"
-
-let get getTeamsFromDB getFixturesForTeam (ctx: HttpContext) =
-    Auth.useToken ctx (fun token -> async {
+let get (getTeamsFromDB: Task<Domain.Team list>) (getFixturesForTeam: string list -> Task<Domain.Fixture list>) next (ctx: HttpContext) =
+    Auth.useToken next ctx (fun token -> task {
         try
             let! teams = getTeamsFromDB
             let teamsCaptainOf = 
@@ -39,8 +36,9 @@ let get getTeamsFromDB getFixturesForTeam (ctx: HttpContext) =
                     TeamsMemberOf = teamsMemberOf
                     Fixtures = fixtures
                 }
-            return! Successful.OK (FableJson.toJson details) ctx
+            return! Successful.OK (FableJson.toJson details) next ctx
         with exn ->
-            logger.error (eventX "SERVICE_UNAVAILABLE" >> addExn exn)
-            return! SERVICE_UNAVAILABLE "Database not available" ctx
+            let logger = ctx.GetLogger "TeamCaptainUserDetails"
+            logger.LogError (EventId(), exn, "SERVICE_UNAVAILABLE")
+            return! SERVICE_UNAVAILABLE "Database not available" next ctx
     })

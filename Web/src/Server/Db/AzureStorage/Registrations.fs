@@ -1,11 +1,11 @@
 module Server.Db.AzureStorage.Registrations
 
 open System
+open Giraffe
 open Server.Domain
-open Microsoft.WindowsAzure.Storage
 open Microsoft.WindowsAzure.Storage.Table
     
-let saveRegistration connection (registration: Registration) = async {
+let saveRegistration connection (registration: Registration) = task {
     let! table = Tables.registrationsTable connection
     let entity = DynamicTableEntity()
     entity.PartitionKey <- registration.TeamName
@@ -13,5 +13,7 @@ let saveRegistration connection (registration: Registration) = async {
 
     entity.Properties.["RegisteredDateTime"] <- EntityProperty.GeneratePropertyForDateTimeOffset (Nullable<DateTimeOffset> DateTimeOffset.Now)
 
-    return! table.ExecuteAsync(TableOperation.InsertOrReplace entity) |> Async.AwaitTask |> Async.Ignore }
+    let! _ = table.ExecuteAsync(TableOperation.InsertOrReplace entity)
+    return () 
+}
 
