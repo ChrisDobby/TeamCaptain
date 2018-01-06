@@ -7,11 +7,11 @@ nuget Giraffe
 nuget Microsoft.Extensions.Logging.Console
 nuget System.Net.NetworkInformation
 nuget Newtonsoft.Json
-nuget jose-jwt
 nuget Microsoft.AspNetCore.StaticFiles
 nuget Microsoft.AspNetCore
 nuget Microsoft.AspNetCore.WebSockets
 nuget Microsoft.AspNetCore.WebSockets.Server
+nuget Microsoft.AspNetCore.Authentication.JwtBearer
 
 nuget Fable.Core
 nuget Fable.Elmish.Browser

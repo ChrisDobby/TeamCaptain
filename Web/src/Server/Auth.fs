@@ -14,7 +14,7 @@ let useToken next (ctx: HttpContext) f = task {
         match Seq.tryHead accessToken with
             Some token when token.StartsWith "Bearer " -> 
             let jwt = token.Replace("Bearer ","")
-            match JsonWebToken.isValid jwt with
+            match Auth0Jwt.isValid jwt with
                 | None -> return! FORBIDDEN "Accessing this API is not allowed" next ctx
                 | Some token -> return! f token
             | _ -> return! BAD_REQUEST "Request doesn't contain a JSON Web Token" next ctx
