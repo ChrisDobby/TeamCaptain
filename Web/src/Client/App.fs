@@ -11,6 +11,8 @@ open Elmish.Browser.Navigation
 open Client.Messages
 open Elmish.Browser.UrlParser
 open Elmish.HMR
+open System
+open Client
 
 importSideEffects "whatwg-fetch"
 importSideEffects "babel-polyfill"
@@ -20,6 +22,7 @@ importSideEffects "babel-polyfill"
 type SubModel =
   | NoSubModel
   | LoginModel of Login.Model
+  | DashboardModel of Dashboard.Model
   
 type Model =
   { Page : Page
@@ -32,6 +35,7 @@ let pageParser : Parser<Page->_,_> =
         [ 
             map Home (s "home") 
             map Login (s "login")
+            map Page.LoggedOut (s "loggedout")
             map TokenCallback (Auth0Lock.auth0lockParser () </> str)
         ]
 
@@ -63,12 +67,20 @@ let urlUpdate (result:Page option) model =
                 SubModel = LoginModel (Login.TokenValidation (Auth0Lock.auth0CallbackParser token))
             }, Cmd.none
         | Some (Dashboard as page) -> homeOrDashboard model.Header, Cmd.none
+        | Some (Page.Logout as page) ->
+            { model with
+                Page = page
+            }, Cmd.none
+        | Some (Page.LoggedOut as page) ->
+            { model with 
+                Page = page
+            }, Cmd.none
 
 let init result =
     let headerModel =
         match Utils.load "teamcaptain.user" with
             | None -> Header.None
-            | Some(user) -> if user.Expiry <= System.DateTime.UtcNow then
+            | Some(user) -> if Auth0Lock.isExpiryValid user then
                                 Header.User user
                             else
                                 Header.None
@@ -83,12 +95,14 @@ let update msg model =
     match msg, model.SubModel with
         | ProfileLoaded(profile), _ -> 
             printfn "Profiled loaded: %O" profile
-            let cmd = Cmd.ofFunc (Utils.save "teamcaptain.user") profile (fun _ -> LoggedIn) StorageFailure
+            let saveCmd = Cmd.ofFunc (Utils.save "teamcaptain.user") profile (fun _ -> LoggedIn) StorageFailure
+            let m, cmd = Dashboard.init(profile)
+            let cmd = Cmd.map DashboardMsg cmd
             { model with
                 Page = Dashboard
                 Header = Header.User profile
-                SubModel = NoSubModel
-            }, Cmd.batch[cmd]
+                SubModel = DashboardModel m
+            }, Cmd.batch[saveCmd; cmd]
         | StorageFailure e, _ ->
             printfn "Unable to access local storage: %A" e
             model, []
@@ -98,13 +112,22 @@ let update msg model =
                 Page = Login
             }, []
         | Logout, _ -> 
-            let cmd = Cmd.ofFunc Utils.delete "teamcaptain.user" (fun _ -> LoggedOut) StorageFailure
+            let _, cmd = Logout.init Logout.None
+            { model with
+                Page = Page.Logout
+                Header = Header.None
+                SubModel = NoSubModel
+            }, Cmd.batch[cmd]
+        | LoggedOut, _ ->
+            let _, cmd = Logout.init Logout.LoggedOut 
+            model, Cmd.batch[cmd]
+        | DashboardMsg(_), _ -> model, []
+        | LogoutComplete, _ ->
             { model with
                 Page = Home
                 Header = Header.None
                 SubModel = NoSubModel
-            }, Cmd.batch[cmd]
-        | LoggedOut, _ -> model, []
+            }, []
 
 // VIEW
 
@@ -119,6 +142,8 @@ let viewPage model dispatch =
             match model.SubModel with
                 | LoginModel m -> Login.view m dispatch
                 | _ -> Login.view Login.None dispatch
+        | Page.Logout -> Logout.view Logout.None dispatch
+        | Page.LoggedOut -> Logout.view Logout.LoggedOut dispatch
         | Dashboard -> Dashboard.view dispatch
 
 /// Constructs the view for the application given the model.

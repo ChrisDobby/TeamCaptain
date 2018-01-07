@@ -105,3 +105,7 @@ let auth0CallbackParser (str: string) =
         int (str.Substring(expiresStart, expiresLength)),
         str.Substring bearerStart
     )
+
+let isExpiryValid user = 
+    let expires = DateTime.Parse (user.Expiry.ToString())
+    expires >= System.DateTime.UtcNow
