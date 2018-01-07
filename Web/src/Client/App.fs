@@ -13,6 +13,7 @@ open Elmish.Browser.UrlParser
 open Elmish.HMR
 open System
 open Client
+open Client
 
 importSideEffects "whatwg-fetch"
 importSideEffects "babel-polyfill"
@@ -121,13 +122,19 @@ let update msg model =
         | LoggedOut, _ ->
             let _, cmd = Logout.init Logout.LoggedOut 
             model, Cmd.batch[cmd]
-        | DashboardMsg(_), _ -> model, []
+        | DashboardMsg(dashboardMsg), DashboardModel dashboardModel -> 
+            let m, cmd = Dashboard.update dashboardMsg dashboardModel
+            { model with
+                SubModel = DashboardModel m
+            }, cmd
         | LogoutComplete, _ ->
             { model with
                 Page = Home
                 Header = Header.None
                 SubModel = NoSubModel
             }, []
+        | _, LoginModel(_) -> model, []
+        | _, NoSubModel -> model, []
 
 // VIEW
 
@@ -144,7 +151,10 @@ let viewPage model dispatch =
                 | _ -> Login.view Login.None dispatch
         | Page.Logout -> Logout.view Logout.None dispatch
         | Page.LoggedOut -> Logout.view Logout.LoggedOut dispatch
-        | Dashboard -> Dashboard.view dispatch
+        | Dashboard -> 
+            match model.SubModel with
+                | DashboardModel m -> Dashboard.view (Some m) dispatch
+                | _ -> Dashboard.view None dispatch
 
 /// Constructs the view for the application given the model.
 let view model dispatch =
