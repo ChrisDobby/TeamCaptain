@@ -1,9 +1,7 @@
 module Client.App
 
-open Fable.Core
 open Fable.Core.JsInterop
 open Fable.Helpers.React.Props
-open Fable.Import
 open Elmish
 open Elmish.React
 open Fable.Import.Browser
@@ -11,8 +9,6 @@ open Elmish.Browser.Navigation
 open Client.Messages
 open Elmish.Browser.UrlParser
 open Elmish.HMR
-open System
-open Client
 open Client
 
 importSideEffects "whatwg-fetch"
@@ -37,6 +33,7 @@ let pageParser : Parser<Page->_,_> =
             map Home (s "home") 
             map Login (s "login")
             map Page.LoggedOut (s "loggedout")
+            map Dashboard (s "dashboard")
             map TokenCallback (Auth0Lock.auth0lockParser () </> str)
         ]
 
@@ -46,18 +43,22 @@ let urlUpdate (result:Page option) model =
             | Header.None ->
                 { model with
                     Page = Home
-                }
-            | Header.User(_) ->
+                }, Cmd.none
+            | Header.User(user) ->
+                let m, cmd = Dashboard.init user
+                let cmd = Cmd.map DashboardMsg cmd
                 { model with 
                     Page = Dashboard
-                }
+                    SubModel = DashboardModel m
+                }, Cmd.batch[cmd]
 
     match result with
         | None ->
             console.error("Error parsing url: " + location.href)
-            ( model, Navigation.modifyUrl (toHash model.Page) )
+            homeOrDashboard model.Header
 
-        | Some (Home) -> homeOrDashboard model.Header, Cmd.none
+        | Some (Home) -> let m, cmd = homeOrDashboard model.Header
+                         m, Cmd.batch[cmd]
         | Some (Login as page) ->
             { model with
                 Page = page
@@ -67,7 +68,7 @@ let urlUpdate (result:Page option) model =
                 Page = Login
                 SubModel = LoginModel (Login.TokenValidation (Auth0Lock.auth0CallbackParser token))
             }, Cmd.none
-        | Some (Dashboard as page) -> homeOrDashboard model.Header, Cmd.none
+        | Some (Dashboard) -> homeOrDashboard model.Header
         | Some (Page.Logout as page) ->
             { model with
                 Page = page
