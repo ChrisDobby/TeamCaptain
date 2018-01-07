@@ -19,5 +19,5 @@ let init model =
 let view model (dispatch: AppMsg -> unit) = 
     match model with
         | LoggedOut -> dispatch AppMsg.LoggedOut
-        | None -> window.location.href <- "https://chrisdobby.eu.auth0.com/v2/logout?client_id=1MD87NRRLv6doHbNL7FDUMckd0npGshr&returnTo=http%3A%2F%2Flocalhost:8080/#loggedout"
+        | None -> window.location.href <- "https://chrisdobby.eu.auth0.com/v2/logout?client_id=1MD87NRRLv6doHbNL7FDUMckd0npGshr&returnTo=" + window.location.origin + "/#loggedout"
     []
