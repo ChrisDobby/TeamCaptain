@@ -30,7 +30,7 @@ let private loadDashboardCmd token =
     Cmd.ofPromise getUserDetails token FetchedUserDetails FetchError
 
 
-let private errorView () = [div [ClassName "alert alert-danger"] [
+let private errorView () = [div [] [
                                 words 16 "Details for the current user could not be loaded.  Refresh to try again"
                           ]]
 

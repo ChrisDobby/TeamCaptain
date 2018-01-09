@@ -11,19 +11,19 @@ type Model =
     | None
 
 let view model (dispatch: AppMsg -> unit) = 
-    let navBar =     
-        nav[ ClassName "navbar navbar-inverse navbar-fixed-top"]
-            [ 
-                div [ ClassName "container-fluid" ] 
-                    [ 
-                    div [ ClassName "navbar-header" ]
-                        [ 
-                        div [ ClassName "navbar-brand" ]
-                            [
-                                words 16 ("Team captain " + ReleaseNotes.Version)
-                            ]
+    let navBar =
+        div [ ClassName "navbar-fixed"]
+            [
+            nav [ ClassName "purple darken-4"]
+                [
+                div [ ClassName "nav-wrapper"] 
+                    [
+                    div [ ClassName "brand-logo" ]
+                        [
+                            span [] [str ("Team captain " + ReleaseNotes.Version)]
                         ]
-                    ]            
+                    ]
+                ]
             ]
 
     let userDetails user = 

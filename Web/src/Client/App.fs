@@ -159,7 +159,7 @@ let viewPage model dispatch =
 
 /// Constructs the view for the application given the model.
 let view model dispatch =
-  div [ ClassName "container" ]
+  div []
     [ lazyView2 Header.view model.Header dispatch
       div [] (viewPage model dispatch)
     ]
