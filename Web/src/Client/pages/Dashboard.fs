@@ -8,6 +8,7 @@ open Fable.PowerPack.Fetch
 open Server.Domain
 open Style
 open Fable.Helpers.React
+open Fable.Helpers.React.Props
 
 type Model = {
     Token: string
@@ -62,4 +63,4 @@ let view model (dispatch: AppMsg -> unit) =
             match m.Details with
                 | Some details -> DashboardDetail.view details dispatch
                 | None -> if m.LoadError then errorView() else []
-        | None -> []
+        | None -> [img[ Src "/images/loader.gif" ]]

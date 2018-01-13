@@ -9,7 +9,7 @@ open Messages
 let private registerView dispatch =
     div [ ClassName "row"] 
         [
-            div [ClassName "col s12 m6"]      
+            div [ClassName "col s12 m6 offset-m3"]      
                 [
                 div [ClassName "card blue-text text-darken-3 z-depth-2"]
                     [
@@ -23,8 +23,8 @@ let private registerView dispatch =
                         ]
                     div [ClassName "card-action"]
                         [
-                            buttonLink "" (fun _ -> dispatch ShowCreateTeam) [str "Create team"]
-                            buttonLink "" (fun _ -> dispatch ShowJoinTeam) [str "Join team"]
+                            viewLink CreateTeam "Create team"
+                            viewLink JoinTeam "Join team"
                         ]
                     ]
                 ]

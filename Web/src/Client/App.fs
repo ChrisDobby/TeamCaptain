@@ -32,7 +32,7 @@ type Model =
 let pageParser : Parser<Page->_,_> =
     oneOf
         [ 
-            map Home (s "home") 
+            map Home (s "Home") 
             map Login (s "login")
             map Page.LoggedOut (s "loggedout")
             map Dashboard (s "dashboard")
@@ -41,25 +41,25 @@ let pageParser : Parser<Page->_,_> =
             map JoinTeam (s "jointeam")
         ]
 
-let authorisedPage model page initView = 
-    match model.Header with
-        | Header.None ->
-            { model with
-                Page = Home
-                SubModel = SubModel.NoSubModel
-            }, Cmd.none
-        | Header.User(user) ->
-            let m, cmd = initView user
-            { model with
-                Page = page
-                SubModel = m
-            }, Cmd.batch[cmd]
-
-let pageInit init user msgType modelType = 
-    let m, cmd = init user
-    (modelType m), Cmd.map msgType cmd
-
 let urlUpdate (result:Page option) model =
+    let authorisedPage model page initView = 
+        match model.Header with
+            | Header.None ->
+                { model with
+                    Page = Home
+                    SubModel = SubModel.NoSubModel
+                }, Cmd.none
+            | Header.User(user) ->
+                let m, cmd = initView user
+                { model with
+                    Page = page
+                    SubModel = m
+                }, Cmd.batch[cmd]
+
+    let pageInit init user msgType modelType = 
+        let m, cmd = init user
+        (modelType m), Cmd.map msgType cmd
+
     match result with
         | None ->
             console.error("Error parsing url: " + location.href)
@@ -145,11 +145,7 @@ let update msg model =
                 Page = Home
                 Header = Header.None
                 SubModel = NoSubModel
-            }, []
-        | ShowCreateTeam, _ -> 
-            authorisedPage model CreateTeam (fun user -> pageInit CreateTeam.init user CreateTeamMsg CreateTeamModel)
-        | ShowJoinTeam, _ -> 
-            authorisedPage model JoinTeam (fun user -> pageInit JoinTeam.init user JoinTeamMsg JoinTeamModel)
+            }, Cmd.batch[Navigation.modifyUrl (toHash Home)]
         | _, _ -> model, []
 
 // VIEW

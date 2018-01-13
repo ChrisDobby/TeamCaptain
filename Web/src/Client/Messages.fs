@@ -44,8 +44,6 @@ type AppMsg =
   | LoggedOut
   | LogoutComplete
   | DashboardMsg of DashboardMsg
-  | ShowCreateTeam
-  | ShowJoinTeam
   | CreateTeamMsg of CreateTeamMsg
   | JoinTeamMsg of JoinTeamMsg
 
