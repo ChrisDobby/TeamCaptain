@@ -8,7 +8,6 @@ open Fable.PowerPack.Fetch
 open Server.Domain
 open Style
 open Fable.Helpers.React
-open Fable.Helpers.React.Props
 
 type Model = {
     Token: string
@@ -21,9 +20,11 @@ let private getUserDetails token =
         let url = "api/userDetails/"
         let props = 
             [ Fetch.requestHeaders [
-                HttpRequestHeaders.Authorization ("Bearer " + token) ]]
+                HttpRequestHeaders.Authorization ("Bearer " + token) ]
+            ]
 
-        return! Fable.PowerPack.Fetch.fetchAs<UserDetails> url props
+        let! detailsJson = Fable.PowerPack.Fetch.fetchAs<string> url props
+        return detailsJson |> (Fable.Import.JS.JSON.parse >> unbox<UserDetails>)
     }
 
 let private loadDashboardCmd token = 
@@ -59,6 +60,6 @@ let view model (dispatch: AppMsg -> unit) =
     match model with
         | Some m ->
             match m.Details with
-                | Some details -> DashboardDetail.view details
+                | Some details -> DashboardDetail.view details dispatch
                 | None -> if m.LoadError then errorView() else []
         | None -> []

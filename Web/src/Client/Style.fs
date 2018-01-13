@@ -27,8 +27,7 @@ let words size message =
 let buttonLink cssClass onClick elements = 
     R.a [ ClassName cssClass
           OnClick (fun _ -> onClick())
-          OnTouchStart (fun _ -> onClick())
-          Style [ !!("cursor", "pointer") ] ] elements
+          OnTouchStart (fun _ -> onClick()) ] elements
 
 let onEnter msg dispatch =
     OnKeyDown (fun (ev:React.KeyboardEvent) ->

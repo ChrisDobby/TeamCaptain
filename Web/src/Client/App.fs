@@ -20,6 +20,8 @@ type SubModel =
   | NoSubModel
   | LoginModel of Login.Model
   | DashboardModel of Dashboard.Model
+  | CreateTeamModel of CreateTeam.Model
+  | JoinTeamModel of JoinTeam.Model
   
 type Model =
   { Page : Page
@@ -35,30 +37,35 @@ let pageParser : Parser<Page->_,_> =
             map Page.LoggedOut (s "loggedout")
             map Dashboard (s "dashboard")
             map TokenCallback (Auth0Lock.auth0lockParser () </> str)
+            map CreateTeam (s "createteam")
+            map JoinTeam (s "jointeam")
         ]
 
-let urlUpdate (result:Page option) model =
-    let homeOrDashboard header =
-        match header with
-            | Header.None ->
-                { model with
-                    Page = Home
-                }, Cmd.none
-            | Header.User(user) ->
-                let m, cmd = Dashboard.init user
-                let cmd = Cmd.map DashboardMsg cmd
-                { model with 
-                    Page = Dashboard
-                    SubModel = DashboardModel m
-                }, Cmd.batch[cmd]
+let authorisedPage model page initView = 
+    match model.Header with
+        | Header.None ->
+            { model with
+                Page = Home
+                SubModel = SubModel.NoSubModel
+            }, Cmd.none
+        | Header.User(user) ->
+            let m, cmd = initView user
+            { model with
+                Page = page
+                SubModel = m
+            }, Cmd.batch[cmd]
 
+let pageInit init user msgType modelType = 
+    let m, cmd = init user
+    (modelType m), Cmd.map msgType cmd
+
+let urlUpdate (result:Page option) model =
     match result with
         | None ->
             console.error("Error parsing url: " + location.href)
-            homeOrDashboard model.Header
-
-        | Some (Home) -> let m, cmd = homeOrDashboard model.Header
-                         m, Cmd.batch[cmd]
+            authorisedPage model Dashboard (fun user -> pageInit Dashboard.init user DashboardMsg DashboardModel)
+        | Some (Home) -> 
+            authorisedPage model Dashboard (fun user -> pageInit Dashboard.init user DashboardMsg DashboardModel)
         | Some (Login as page) ->
             { model with
                 Page = page
@@ -68,7 +75,8 @@ let urlUpdate (result:Page option) model =
                 Page = Login
                 SubModel = LoginModel (Login.TokenValidation (Auth0Lock.auth0CallbackParser token))
             }, Cmd.none
-        | Some (Dashboard) -> homeOrDashboard model.Header
+        | Some (Dashboard as page) -> 
+            authorisedPage model page (fun user -> pageInit Dashboard.init user DashboardMsg DashboardModel)
         | Some (Page.Logout as page) ->
             { model with
                 Page = page
@@ -77,6 +85,10 @@ let urlUpdate (result:Page option) model =
             { model with 
                 Page = page
             }, Cmd.none
+        | Some (CreateTeam as page) -> 
+            authorisedPage model page (fun user -> pageInit CreateTeam.init user CreateTeamMsg CreateTeamModel)
+        | Some (JoinTeam as page) -> 
+            authorisedPage model page (fun user -> pageInit JoinTeam.init user JoinTeamMsg JoinTeamModel)
 
 let init result =
     let headerModel =
@@ -91,7 +103,7 @@ let init result =
                                     | Header.None -> { Page = Home; Header = headerModel; SubModel = NoSubModel }
                                     | Header.User(_) -> { Page = Dashboard; Header = headerModel; SubModel = NoSubModel })
 
-    m,Cmd.batch[cmd]
+    m, Cmd.batch[cmd]
 
 let update msg model =
     match msg, model.SubModel with
@@ -134,8 +146,11 @@ let update msg model =
                 Header = Header.None
                 SubModel = NoSubModel
             }, []
-        | _, LoginModel(_) -> model, []
-        | _, NoSubModel -> model, []
+        | ShowCreateTeam, _ -> 
+            authorisedPage model CreateTeam (fun user -> pageInit CreateTeam.init user CreateTeamMsg CreateTeamModel)
+        | ShowJoinTeam, _ -> 
+            authorisedPage model JoinTeam (fun user -> pageInit JoinTeam.init user JoinTeamMsg JoinTeamModel)
+        | _, _ -> model, []
 
 // VIEW
 
@@ -155,7 +170,15 @@ let viewPage model dispatch =
         | Dashboard -> 
             match model.SubModel with
                 | DashboardModel m -> Dashboard.view (Some m) dispatch
-                | _ -> Dashboard.view None dispatch
+                | _ -> Dashboard.view None dispatch        
+        | CreateTeam -> 
+            match model.SubModel with
+                | CreateTeamModel m -> CreateTeam.view (Some m) dispatch
+                | _ -> CreateTeam.view None dispatch        
+        | JoinTeam -> 
+            match model.SubModel with
+                | JoinTeamModel m -> JoinTeam.view (Some m) dispatch
+                | _ -> JoinTeam.view None dispatch        
 
 /// Constructs the view for the application given the model.
 let view model dispatch =
@@ -164,7 +187,7 @@ let view model dispatch =
     main [] 
         [
             lazyView2 Header.view model.Header dispatch
-            div [] (viewPage model dispatch)
+            div [ClassName "main-content"] (viewPage model dispatch)
         ]
     Footer.view
     ]

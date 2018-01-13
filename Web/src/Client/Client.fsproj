@@ -16,6 +16,8 @@
     <Compile Include="pages/Logout.fs" />
     <Compile Include="pages/Home.fs" />
     <Compile Include="pages/Dashboard.fs" />
+    <Compile Include="pages/CreateTeam.fs" />
+    <Compile Include="pages/JoinTeam.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

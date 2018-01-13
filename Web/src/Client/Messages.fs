@@ -3,7 +3,6 @@ module Client.Messages
 open System
 
 open Server.Domain
-open Fable.PowerPack.Fetch.Fetch_types
 
 type UserProfile = 
     {
@@ -23,10 +22,18 @@ type Page =
   | Logout
   | LoggedOut
   | Dashboard
+  | CreateTeam
+  | JoinTeam
 
 type DashboardMsg =
   | FetchedUserDetails of UserDetails
   | FetchError of exn
+
+type CreateTeamMsg =
+  | Load
+
+type JoinTeamMsg = 
+  | FetchedTeams of Team seq
 
 type AppMsg = 
   | ShowLogin
@@ -37,7 +44,10 @@ type AppMsg =
   | LoggedOut
   | LogoutComplete
   | DashboardMsg of DashboardMsg
-
+  | ShowCreateTeam
+  | ShowJoinTeam
+  | CreateTeamMsg of CreateTeamMsg
+  | JoinTeamMsg of JoinTeamMsg
 
 let toHash = function
   | Home -> "#home"
@@ -46,4 +56,6 @@ let toHash = function
   | Page.Logout -> "#logout"
   | Dashboard -> "#dashboard"
   | Page.LoggedOut -> "#loggedout"
+  | CreateTeam -> "#createteam"
+  | JoinTeam -> "#jointeam"
  

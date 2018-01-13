@@ -15,7 +15,7 @@ let view (dispatch: AppMsg -> unit) =
                     p [ ClassName "white-text"] [
                         h3 [] [str "To register with a team, create a new team or update your details"]
                       ]
-                    buttonLink "btn btn-primary btn-lg" (fun _ -> dispatch ShowLogin) [str "Login"]
+                    buttonLink "btn" (fun _ -> dispatch ShowLogin) [str "Login"]
                 ]
             ]
     ]
