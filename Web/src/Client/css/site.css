@@ -22,3 +22,13 @@ body {
     height: 50px;
     box-shadow: 0 4px 6px 0 rgba(0,0,0,.14), 0 4px 5px rgba(0,0,0,-1);
 }
+
+.flex-container {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}

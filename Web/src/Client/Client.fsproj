@@ -11,6 +11,7 @@
     <Compile Include="Auth0Lock.fs" />
     <Compile Include="components/DashboardDetail.fs" />
     <Compile Include="pages/Header.fs" />
+    <Compile Include="pages/Footer.fs" />
     <Compile Include="pages/Login.fs" />
     <Compile Include="pages/Logout.fs" />
     <Compile Include="pages/Home.fs" />

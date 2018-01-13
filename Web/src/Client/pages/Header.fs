@@ -14,13 +14,13 @@ let view model (dispatch: AppMsg -> unit) =
     let navBar =
         div [ ClassName "navbar-fixed"]
             [
-            nav [ ClassName "purple darken-4"]
+            nav [ ClassName "blue darken-4"]
                 [
                 div [ ClassName "nav-wrapper"] 
                     [
                     div [ ClassName "brand-logo" ]
                         [
-                            span [] [str ("Team captain " + ReleaseNotes.Version)]
+                            span [] [str "Team captain"]
                         ]
                     ]
                 ]
