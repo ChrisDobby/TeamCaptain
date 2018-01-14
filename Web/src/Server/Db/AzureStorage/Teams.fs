@@ -4,6 +4,7 @@ open System
 open Server.Domain
 open Giraffe
 open Microsoft.WindowsAzure.Storage.Table
+open Server.Data
 
 let createTeam (entity: DynamicTableEntity) =
     {
@@ -11,9 +12,9 @@ let createTeam (entity: DynamicTableEntity) =
         Config = 
             {
                 NumberOfPlayers = entity.Properties.["NumberOfPlayers"].Int32Value.Value
-                AvailabilityCheckDay = entity.Properties.["AvailabilityCheckDay"].Int32Value.Value
+                AvailabilityCheckDay = entity.Properties.["AvailabilityCheckDay"].Int32Value.Value |> Converter.ToDay
                 AvailabilityCheckTime = entity.Properties.["AvailabilityCheckTime"].Int32Value.Value
-                SelectionNotifyDay = entity.Properties.["SelectionNotifyDay"].Int32Value.Value
+                SelectionNotifyDay = entity.Properties.["SelectionNotifyDay"].Int32Value.Value |> Converter.ToDay
                 SelectionNotifyTime = entity.Properties.["SelectionNotifyTime"].Int32Value.Value
             }
         Captains = entity.Properties.["Captains"].StringValue |> Server.FableJson.ofJson
@@ -25,9 +26,9 @@ let createTableEntity name config captains players =
     entity.PartitionKey <- "Teams"
     entity.RowKey <- name
     entity.Properties.["NumberOfPlayers"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.NumberOfPlayers))
-    entity.Properties.["AvailabilityCheckDay"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.AvailabilityCheckDay))
+    entity.Properties.["AvailabilityCheckDay"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(Converter.ToInt config.AvailabilityCheckDay))
     entity.Properties.["AvailabilityCheckTime"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.AvailabilityCheckTime))
-    entity.Properties.["SelectionNotifyDay"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.SelectionNotifyDay))
+    entity.Properties.["SelectionNotifyDay"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(Converter.ToInt config.SelectionNotifyDay))
     entity.Properties.["SelectionNotifyTime"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.SelectionNotifyTime))
     entity.Properties.["Captains"] <- EntityProperty.GeneratePropertyForString(Server.FableJson.toJson captains)
     entity.Properties.["Players"] <- EntityProperty.GeneratePropertyForString(Server.FableJson.toJson players)

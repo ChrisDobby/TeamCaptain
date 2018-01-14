@@ -3,6 +3,17 @@ namespace Server.Domain
    
 open System
 
+type Day = 
+    | Monday
+    | Tuesday
+    | Wednesday
+    | Thursday
+    | Friday
+    | Saturday
+    | Sunday
+
+type HourOfDay = int
+
 // Json web token type.
 type JWT = string
 
@@ -30,10 +41,10 @@ type AvailabilityRecord =
 type TeamConfig =
     {
         NumberOfPlayers: int
-        AvailabilityCheckDay: int
-        AvailabilityCheckTime: int
-        SelectionNotifyDay: int
-        SelectionNotifyTime: int
+        AvailabilityCheckDay: Day
+        AvailabilityCheckTime: HourOfDay
+        SelectionNotifyDay: Day
+        SelectionNotifyTime: HourOfDay
     }
 
 type Team = 

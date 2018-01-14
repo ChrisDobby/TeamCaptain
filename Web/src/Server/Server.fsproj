@@ -13,6 +13,7 @@
     <Compile Include="Registrations.fs" />
     <Compile Include="UserDetails.fs" />
     <Compile Include="Fixtures.fs" />
+    <Compile Include="Db/Converter.fs" />
     <Compile Include="Db/AzureStorage/Tables.fs" />
     <Compile Include="Db/AzureStorage/Teams.fs" />
     <Compile Include="Db/AzureStorage/Registrations.fs" />
