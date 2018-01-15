@@ -1,9 +1,9 @@
 module Client.Style
 
 open Fable.Helpers.React.Props
-open Fable.Core
 open Fable.Core.JsInterop
 open Fable.Import
+open Fable.Helpers.React
 open Messages
 
 module R = Fable.Helpers.React
@@ -29,6 +29,14 @@ let buttonLink cssClass onClick elements =
           OnClick (fun _ -> onClick())
           OnTouchStart (fun _ -> onClick()) 
           Style [ !!("cursor", "pointer") ] ] elements
+
+let floatingButton onClick iconName =
+    R.a [ClassName "btn-floating btn-large waves-effect waves-light red"
+         OnClick (fun _ -> onClick())
+         OnTouchStart (fun _ -> onClick())]
+         [
+             R.i [ClassName "material-icons"] [str iconName]
+         ]
 
 let onEnter msg dispatch =
     OnKeyDown (fun (ev:React.KeyboardEvent) ->
