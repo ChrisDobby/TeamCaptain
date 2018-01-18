@@ -12,7 +12,7 @@ type Day =
     | Saturday
     | Sunday
 
-type HourOfDay = int
+type TimeOfDay = string
 
 // Json web token type.
 type JWT = string
@@ -42,9 +42,9 @@ type TeamConfig =
     {
         NumberOfPlayers: int
         AvailabilityCheckDay: Day
-        AvailabilityCheckTime: HourOfDay
+        AvailabilityCheckTime: TimeOfDay
         SelectionNotifyDay: Day
-        SelectionNotifyTime: HourOfDay
+        SelectionNotifyTime: TimeOfDay
     }
 
 type Team = 
@@ -53,6 +53,18 @@ type Team =
         Config: TeamConfig
         Captains: string list
         Players: string list
+    }
+    static member New captain numberOfPlayers = {
+        Name = ""
+        Captains = [captain]
+        Players = []
+        Config = {
+                    NumberOfPlayers = numberOfPlayers
+                    AvailabilityCheckDay = Day.Monday
+                    AvailabilityCheckTime = "09:00"
+                    SelectionNotifyDay = Day.Monday
+                    SelectionNotifyTime = "09:00"
+                }
     }
 
 type RegisterTeamRequest = 

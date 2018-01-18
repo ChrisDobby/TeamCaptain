@@ -146,6 +146,11 @@ let update msg model =
                 Header = Header.None
                 SubModel = NoSubModel
             }, Cmd.batch[Navigation.modifyUrl (toHash Home)]
+        | CreateTeamMsg(createTeamMsg), CreateTeamModel createTeamModel ->
+            let m, cmd = CreateTeam.update createTeamMsg createTeamModel
+            { model with
+                SubModel = CreateTeamModel m 
+            }, cmd
         | _, _ -> model, []
 
 // VIEW

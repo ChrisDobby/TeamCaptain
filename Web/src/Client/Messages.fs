@@ -30,7 +30,12 @@ type DashboardMsg =
   | FetchError of exn
 
 type CreateTeamMsg =
-  | Load
+  | TeamNameChanged of string
+  | NumberOfPlayersChanged of int
+  | AvailabilityCheckDayChanged of string
+  | AvailabilityCheckTimeChanged of string
+  | SelectionNotifyDayChanged of string
+  | SelectionNotifyTimeChanged of string
 
 type JoinTeamMsg = 
   | FetchedTeams of Team seq

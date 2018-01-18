@@ -13,9 +13,9 @@ let createTeam (entity: DynamicTableEntity) =
             {
                 NumberOfPlayers = entity.Properties.["NumberOfPlayers"].Int32Value.Value
                 AvailabilityCheckDay = entity.Properties.["AvailabilityCheckDay"].Int32Value.Value |> Converter.ToDay
-                AvailabilityCheckTime = entity.Properties.["AvailabilityCheckTime"].Int32Value.Value
+                AvailabilityCheckTime = entity.Properties.["AvailabilityCheckTime"].StringValue
                 SelectionNotifyDay = entity.Properties.["SelectionNotifyDay"].Int32Value.Value |> Converter.ToDay
-                SelectionNotifyTime = entity.Properties.["SelectionNotifyTime"].Int32Value.Value
+                SelectionNotifyTime = entity.Properties.["SelectionNotifyTime"].StringValue
             }
         Captains = entity.Properties.["Captains"].StringValue |> Server.FableJson.ofJson
         Players = entity.Properties.["Players"].StringValue |> Server.FableJson.ofJson
@@ -27,9 +27,9 @@ let createTableEntity name config captains players =
     entity.RowKey <- name
     entity.Properties.["NumberOfPlayers"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.NumberOfPlayers))
     entity.Properties.["AvailabilityCheckDay"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(Converter.ToInt config.AvailabilityCheckDay))
-    entity.Properties.["AvailabilityCheckTime"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.AvailabilityCheckTime))
+    entity.Properties.["AvailabilityCheckTime"] <- EntityProperty.GeneratePropertyForString (string(config.AvailabilityCheckTime))
     entity.Properties.["SelectionNotifyDay"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(Converter.ToInt config.SelectionNotifyDay))
-    entity.Properties.["SelectionNotifyTime"] <- EntityProperty.GeneratePropertyForInt (Nullable<int>(config.SelectionNotifyTime))
+    entity.Properties.["SelectionNotifyTime"] <- EntityProperty.GeneratePropertyForString (string(config.SelectionNotifyTime))
     entity.Properties.["Captains"] <- EntityProperty.GeneratePropertyForString(Server.FableJson.toJson captains)
     entity.Properties.["Players"] <- EntityProperty.GeneratePropertyForString(Server.FableJson.toJson players)
     
