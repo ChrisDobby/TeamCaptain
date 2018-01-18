@@ -30,8 +30,8 @@ let buttonLink cssClass onClick elements =
           OnTouchStart (fun _ -> onClick()) 
           Style [ !!("cursor", "pointer") ] ] elements
 
-let floatingButton onClick iconName =
-    R.a [ClassName "btn-floating btn-large waves-effect waves-light red"
+let floatingButton onClick iconName cssClass =
+    R.a [ClassName ("btn-floating btn-large waves-effect waves-light red " + cssClass)
          OnClick (fun _ -> onClick())
          OnTouchStart (fun _ -> onClick())]
          [

@@ -174,8 +174,8 @@ let viewPage model dispatch =
                 | _ -> Dashboard.view None dispatch        
         | CreateTeam -> 
             match model.SubModel with
-                | CreateTeamModel m -> CreateTeam.view (Some m) dispatch
-                | _ -> CreateTeam.view None dispatch        
+                | CreateTeamModel m -> CreateTeam.view m dispatch
+                | _ -> []
         | JoinTeam -> 
             match model.SubModel with
                 | JoinTeamModel m -> JoinTeam.view (Some m) dispatch

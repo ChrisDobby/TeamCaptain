@@ -9,11 +9,16 @@ open Client.Materialize
 open Client.Style
 open Server.Domain
 open Fable.Core.JsInterop
-open Client
 
 type Model = {
     User: UserProfile
     NewTeam: Team
+    TeamNameIsValid: bool
+    NumberOfPlayersIsValid: bool
+    AvailabilityDayIsValid: bool
+    AvailabilityTimeIsValid: bool
+    SelectionDayIsValid: bool
+    SelectionTimeIsValid: bool
 }
 
 let optionToDay = function
@@ -72,35 +77,46 @@ let init user =
     { 
         User = user
         NewTeam = Team.New user.UserId 11
+        TeamNameIsValid = false
+        NumberOfPlayersIsValid = true
+        AvailabilityDayIsValid = true
+        AvailabilityTimeIsValid = true
+        SelectionDayIsValid = true
+        SelectionTimeIsValid = true
     }, Cmd.none
 
 let update msg model =
     match msg with
         | TeamNameChanged(teamName) -> 
             let newTeam = { model.NewTeam with Name = teamName }
-            { model with NewTeam = newTeam }, Cmd.none
+            { model with NewTeam = newTeam
+                         TeamNameIsValid = teamName.Length > 0 }, Cmd.none
         | NumberOfPlayersChanged(number) -> 
             let newTeam = { model.NewTeam with 
                                 Config = { model.NewTeam.Config with NumberOfPlayers = number } }
-            { model with NewTeam = newTeam }, Cmd.none
+            { model with NewTeam = newTeam; NumberOfPlayersIsValid = number > 0 }, Cmd.none
         | AvailabilityCheckDayChanged(day) ->
             let newTeam = { model.NewTeam with 
                                 Config = { model.NewTeam.Config with AvailabilityCheckDay = optionToDay day } }
-            { model with NewTeam = newTeam }, Cmd.none
+            { model with NewTeam = newTeam; AvailabilityDayIsValid = day <> "" }, Cmd.none
         | AvailabilityCheckTimeChanged(time) ->
             let newTeam = { model.NewTeam with 
                                 Config = { model.NewTeam.Config with AvailabilityCheckTime = time } }
-            { model with NewTeam = newTeam }, Cmd.none
+            { model with NewTeam = newTeam; AvailabilityTimeIsValid = time <> "" }, Cmd.none
         | SelectionNotifyDayChanged(day) ->
             let newTeam = { model.NewTeam with 
                                 Config = { model.NewTeam.Config with SelectionNotifyDay = optionToDay day } }
-            { model with NewTeam = newTeam }, Cmd.none
+            { model with NewTeam = newTeam; SelectionDayIsValid = day <> "" }, Cmd.none
         | SelectionNotifyTimeChanged(time) ->
             let newTeam = { model.NewTeam with 
                                 Config = { model.NewTeam.Config with SelectionNotifyTime = time } }
-            { model with NewTeam = newTeam }, Cmd.none
+            { model with NewTeam = newTeam; SelectionTimeIsValid = time <> "" }, Cmd.none
 
 let view model (dispatch: AppMsg -> unit) = 
+    let isModelValid = model.TeamNameIsValid && model.NumberOfPlayersIsValid && 
+                       model.AvailabilityDayIsValid && model.AvailabilityTimeIsValid &&
+                       model.SelectionDayIsValid && model.SelectionTimeIsValid
+
     initialiseComponents
         [
         ("availability_day", fun (elm: Browser.HTMLSelectElement) -> dispatch(CreateTeamMsg (CreateTeamMsg.AvailabilityCheckDayChanged elm.value)))
@@ -127,7 +143,7 @@ let view model (dispatch: AppMsg -> unit) =
                         span [ClassName "page-title"] [str "Create team"]
                         ul [ClassName "right"] 
                             [
-                            li [] [floatingButton (fun _ -> () |> ignore) "add"]
+                            li [] [floatingButton (fun _ -> () |> ignore) "add" (if isModelValid then "" else "disabled")]
                             ]
                         ]
                     ]
@@ -141,7 +157,7 @@ let view model (dispatch: AppMsg -> unit) =
                         input [
                                 Id "team_name"
                                 Type "text"
-                                ClassName "validate"
+                                ClassName (if model.TeamNameIsValid then "valid" else "invalid")
                                 OnChange (fun (ev:React.FormEvent) -> dispatch (CreateTeamMsg (CreateTeamMsg.TeamNameChanged !!ev.target?value)))] 
                         label [HtmlFor "team_name"] [str "Team name"]
                         ]
@@ -153,7 +169,7 @@ let view model (dispatch: AppMsg -> unit) =
                         input [
                             Id "number_players"
                             Type "number"
-                            ClassName "validate"
+                            ClassName (if model.NumberOfPlayersIsValid then "valid" else "invalid")
                             DefaultValue "11"
                             OnChange (fun (ev:React.FormEvent) -> dispatch (CreateTeamMsg (CreateTeamMsg.NumberOfPlayersChanged !!ev.target?value)))] 
                         label [HtmlFor "number_players"; ClassName "active"] [str "Number of players"]
@@ -166,6 +182,7 @@ let view model (dispatch: AppMsg -> unit) =
                         select [
                             Id "availability_day"
                             DefaultValue "monday"
+                            ClassName (if model.AvailabilityDayIsValid then "valid" else "invalid")
                             OnChange (fun (ev:React.FormEvent) -> dispatch (CreateTeamMsg (CreateTeamMsg.AvailabilityCheckDayChanged !!ev.target?value)))] dayOptions
                         label [] [str "Availability day"]
                         ]
@@ -174,7 +191,8 @@ let view model (dispatch: AppMsg -> unit) =
                         input [
                             Id "availability_time"
                             Type "text"
-                            ClassName "timepicker"
+                            ClassName ("timepicker " + (if model.AvailabilityTimeIsValid then "valid" else "invalid"))
+                            DefaultValue "09:00"
                             OnChange (fun (ev:React.FormEvent) -> dispatch (CreateTeamMsg (CreateTeamMsg.AvailabilityCheckTimeChanged !!ev.target?value)))]
                         label [HtmlFor "availability_time"; ClassName "active"] [str "Availability time"]
                         ]
@@ -186,6 +204,7 @@ let view model (dispatch: AppMsg -> unit) =
                         select [
                             Id "selection_day"
                             DefaultValue "monday"
+                            ClassName (if model.SelectionDayIsValid then "valid" else "invalid")
                             OnChange (fun (ev:React.FormEvent) -> dispatch (CreateTeamMsg (CreateTeamMsg.SelectionNotifyDayChanged !!ev.target?value)))] dayOptions
                         label [] [str "Selection day"]
                         ]
@@ -194,7 +213,7 @@ let view model (dispatch: AppMsg -> unit) =
                         input [
                             Id "selection_time"
                             Type "text"
-                            ClassName "timepicker"
+                            ClassName ("timepicker " + (if model.SelectionTimeIsValid then "valid" else "invalid"))
                             DefaultValue "09:00"
                             OnChange (fun (ev:React.FormEvent) -> dispatch (CreateTeamMsg (CreateTeamMsg.SelectionNotifyTimeChanged !!ev.target?value)))]
                         label [HtmlFor "selection_time"; ClassName "active"] [str "Selection time"]
