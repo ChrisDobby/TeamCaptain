@@ -18,7 +18,7 @@ type Model = {
 
 let private getUserDetails token =
     promise {        
-        let url = "api/userDetails/"
+        let url = "api/userdetails/"
         let props = 
             [ Fetch.requestHeaders [
                 HttpRequestHeaders.Authorization ("Bearer " + token) ]

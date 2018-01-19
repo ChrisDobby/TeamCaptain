@@ -10,7 +10,7 @@ type Database =
     | InMemory
 
 let azureDataFunctions connection = 
-    Server.Db.AzureStorage.Teams.getTeams connection, 
+    (fun () -> Server.Db.AzureStorage.Teams.getTeams connection), 
     Server.Db.AzureStorage.Teams.getTeam connection,
     Server.Db.AzureStorage.Registrations.saveRegistration connection,
     Server.Db.AzureStorage.Teams.updateTeam connection,
@@ -19,7 +19,7 @@ let azureDataFunctions connection =
     Server.Db.AzureStorage.Fixtures.saveFixture connection
 
 let inMemoryDataFunctions =
-    task { return Server.Db.InMemory.Data.getTeams },
+    (fun () -> task { return Server.Db.InMemory.Data.getTeams () }),
     (fun name -> task { return Server.Db.InMemory.Data.getTeam name }),
     (fun reg -> task { return Server.Db.InMemory.Data.saveRegistration reg }),
     (fun team -> task { return Server.Db.InMemory.Data.updateTeam team }),
@@ -41,12 +41,12 @@ let webApp database root =
                 route "/" (htmlFile (System.IO.Path.Combine(root,"index.html")))
 
                 route "/api/teams/" (Teams.getAllTeams getTeams)
-                route "/api/userDetails/" (UserDetails.get getTeams fixturesForTeams) ]
+                route "/api/userdetails/" (UserDetails.get getTeams fixturesForTeams) ]
 
             POST [ 
                 route "/api/register/" (Registrations.registerWithTeam saveRegistration)
-                route "/api/confirmRegistration" (Registrations.confirmRegistration getTeam updateTeam)
-                route "/api/registerTeam" (Teams.registerTeam getTeams registerTeam)
-                route "/api/createFixture/" (Fixtures.createFixture getTeam saveFixture)
+                route "/api/confirmregistration" (Registrations.confirmRegistration getTeam updateTeam)
+                route "/api/registerteam" (Teams.registerTeam getTeams registerTeam)
+                route "/api/createfixture/" (Fixtures.createFixture getTeam saveFixture)
             ]        
     ]

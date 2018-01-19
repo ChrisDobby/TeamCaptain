@@ -54,10 +54,16 @@ type Team =
         Captains: string list
         Players: string list
     }
+
+type RegisterTeamRequest = 
+    {
+        Name: string
+        Config: TeamConfig
+        UserName: string
+    }
     static member New captain numberOfPlayers = {
         Name = ""
-        Captains = [captain]
-        Players = []
+        UserName = captain
         Config = {
                     NumberOfPlayers = numberOfPlayers
                     AvailabilityCheckDay = Day.Monday
@@ -65,13 +71,6 @@ type Team =
                     SelectionNotifyDay = Day.Monday
                     SelectionNotifyTime = "09:00"
                 }
-    }
-
-type RegisterTeamRequest = 
-    {
-        Name: string
-        Config: TeamConfig
-        UserName: string
     }
 
 type Fixture = 

@@ -8,10 +8,10 @@ open Server
 open Microsoft.Extensions.Logging
 open System.Threading.Tasks
 
-let get (getTeamsFromDB: Task<Domain.Team list>) (getFixturesForTeam: string list -> Task<Domain.Fixture list>) next (ctx: HttpContext) =
+let get (getTeamsFromDB: unit -> Task<Domain.Team list>) (getFixturesForTeam: string list -> Task<Domain.Fixture list>) next (ctx: HttpContext) =
     Auth.useToken next ctx (fun token -> task {
         try
-            let! teams = getTeamsFromDB
+            let! teams = getTeamsFromDB ()
             let teamsCaptainOf = 
                 teams |> 
                 List.filter(fun team -> (team.Captains |> List.contains(token.UserName))) |>

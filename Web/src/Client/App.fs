@@ -148,6 +148,7 @@ let update msg model =
             }, Cmd.batch[Navigation.modifyUrl (toHash Home)]
         | CreateTeamMsg(createTeamMsg), CreateTeamModel createTeamModel ->
             let m, cmd = CreateTeam.update createTeamMsg createTeamModel
+            let cmd = Cmd.map CreateTeamMsg cmd
             { model with
                 SubModel = CreateTeamModel m 
             }, cmd

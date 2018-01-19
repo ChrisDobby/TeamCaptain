@@ -9,16 +9,20 @@ open Client.Materialize
 open Client.Style
 open Server.Domain
 open Fable.Core.JsInterop
+open Fable.PowerPack
+open Fable.PowerPack.Fetch
 
 type Model = {
     User: UserProfile
-    NewTeam: Team
+    NewTeam: RegisterTeamRequest
     TeamNameIsValid: bool
     NumberOfPlayersIsValid: bool
     AvailabilityDayIsValid: bool
     AvailabilityTimeIsValid: bool
     SelectionDayIsValid: bool
     SelectionTimeIsValid: bool
+    Saving: bool
+    SaveError: bool
 }
 
 let optionToDay = function
@@ -49,6 +53,23 @@ let dayOptions =
         [ str "Sunday"]
     ] 
 
+let private postTeam (token, team) =
+    promise {        
+        let url = "api/registerteam"
+        let body = toJson team
+        let props = 
+            [ RequestProperties.Method HttpMethod.POST
+              Fetch.requestHeaders [
+                HttpRequestHeaders.Authorization ("Bearer " + token)
+                HttpRequestHeaders.ContentType "application/json" ]
+              RequestProperties.Body !^body ]
+
+        return! Fable.PowerPack.Fetch.fetch url props
+    }
+
+let private saveTeamCmd token team = 
+    Cmd.ofPromise postTeam (token, team) SaveSuccess SaveError
+
 let initialiseComponents (components) =
     let selectChangeHandler id changeHandler = 
         fun () -> let elm = Fable.Import.Browser.document.getElementById id :?> Browser.HTMLSelectElement
@@ -76,13 +97,15 @@ let init user =
 
     { 
         User = user
-        NewTeam = Team.New user.UserId 11
+        NewTeam = RegisterTeamRequest.New user.UserId 11
         TeamNameIsValid = false
         NumberOfPlayersIsValid = true
         AvailabilityDayIsValid = true
         AvailabilityTimeIsValid = true
         SelectionDayIsValid = true
         SelectionTimeIsValid = true
+        Saving = false
+        SaveError = false
     }, Cmd.none
 
 let update msg model =
@@ -111,6 +134,10 @@ let update msg model =
             let newTeam = { model.NewTeam with 
                                 Config = { model.NewTeam.Config with SelectionNotifyTime = time } }
             { model with NewTeam = newTeam; SelectionTimeIsValid = time <> "" }, Cmd.none
+        | SaveTeam -> { model with Saving = true }, saveTeamCmd model.User.BearerToken model.NewTeam
+        | SaveSuccess _ -> model, Cmd.none
+        | SaveError _ -> { model with SaveError = true }, Cmd.none
+        
 
 let view model (dispatch: AppMsg -> unit) = 
     let isModelValid = model.TeamNameIsValid && model.NumberOfPlayersIsValid && 
@@ -143,7 +170,7 @@ let view model (dispatch: AppMsg -> unit) =
                         span [ClassName "page-title"] [str "Create team"]
                         ul [ClassName "right"] 
                             [
-                            li [] [floatingButton (fun _ -> () |> ignore) "add" (if isModelValid then "" else "disabled")]
+                            li [] [floatingButton (fun _ -> dispatch( CreateTeamMsg (CreateTeamMsg.SaveTeam))) "add" (if isModelValid then "" else "disabled")]
                             ]
                         ]
                     ]

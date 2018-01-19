@@ -9,7 +9,8 @@ let mutable registrations: Registration list = []
 
 let mutable fixtures: Fixture list = []
 
-let getTeams = teams
+let getTeams () = 
+    teams
 
 let getTeam teamName =
     let filteredTeam teams =

@@ -3,6 +3,7 @@ module Client.Messages
 open System
 
 open Server.Domain
+open Fable.PowerPack.Fetch.Fetch_types
 
 type UserProfile = 
     {
@@ -36,6 +37,9 @@ type CreateTeamMsg =
   | AvailabilityCheckTimeChanged of string
   | SelectionNotifyDayChanged of string
   | SelectionNotifyTimeChanged of string
+  | SaveTeam
+  | SaveSuccess of Response
+  | SaveError of exn
 
 type JoinTeamMsg = 
   | FetchedTeams of Team seq
