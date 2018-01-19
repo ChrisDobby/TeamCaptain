@@ -11,6 +11,7 @@ open Server.Domain
 open Fable.Core.JsInterop
 open Fable.PowerPack
 open Fable.PowerPack.Fetch
+open Elmish.Browser.Navigation
 
 type Model = {
     User: UserProfile
@@ -135,7 +136,7 @@ let update msg model =
                                 Config = { model.NewTeam.Config with SelectionNotifyTime = time } }
             { model with NewTeam = newTeam; SelectionTimeIsValid = time <> "" }, Cmd.none
         | SaveTeam -> { model with Saving = true }, saveTeamCmd model.User.BearerToken model.NewTeam
-        | SaveSuccess _ -> model, Cmd.none
+        | SaveSuccess _ -> model, Navigation.newUrl (toHash Dashboard)
         | SaveError _ -> { model with SaveError = true }, Cmd.none
         
 
